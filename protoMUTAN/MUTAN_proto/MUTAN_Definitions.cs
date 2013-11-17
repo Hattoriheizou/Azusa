@@ -63,4 +63,26 @@ namespace MUTAN_proto
         }
     }
 
+    //The simple multi statement
+    class multi : IRunnable
+    {
+        IRunnable[] basics;
+        public multi(IRunnable[] lines)
+        {
+            basics = lines;
+        }
+
+        public bool Run()
+        {
+            foreach (IRunnable basic in basics)
+            {
+                if (!basic.Run())
+                {
+                    return false;
+                }                
+            }
+            return true;
+        }
+    }
+
 }

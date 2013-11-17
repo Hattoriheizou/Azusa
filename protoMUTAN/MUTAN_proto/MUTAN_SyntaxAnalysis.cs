@@ -18,8 +18,8 @@ namespace MUTAN_proto
             //Remove unnecessary spaces
             string expr = _expr.Trim();
 
-            //No empty expression allowed
-            if (expr == "")
+            //No empty expression or empty quotation allowed 
+            if (expr == "" || expr.Trim('"')=="")
             {
                 result = "INVALIDEXPR";
                 return false;
@@ -279,19 +279,44 @@ namespace MUTAN_proto
     class Classifier
     {
         
-
+        
         public bool TryClassify(string line, out IRunnable obj)
         {
+            //Classification should begin from large scale structure to small scale structure
+            //in order to ensure correct priority
 
-            if (IsDecla(line))
+            if (IsMulti(line))
             {
-                obj = new decla(line);
+                string[] parts = line.Split(';');
+                IRunnable[] basics = new IRunnable[parts.Length];
+
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    if (IsDecla(parts[i]))
+                    {
+                        basics[i] = new decla(parts[i]);
+                    }
+                    else
+                    {
+                        basics[i] = new exec(parts[i]);
+                    }
+                }
+
+                obj = new multi(basics);
                 return true;
             }
+
+            
 
             if (IsExec(line))
             {
                 obj = new exec(line);
+                return true;
+            }
+
+            if (IsDecla(line))
+            {
+                obj = new decla(line);
                 return true;
             }
 
@@ -353,6 +378,26 @@ namespace MUTAN_proto
         bool IsDecExe(string line)
         {
             return IsDecla(line) || IsExec(line);
+        }
+
+        bool IsMulti(string line)
+        {
+            //First it has to contain ";"
+            if (line.Contains(';'))
+            {
+                //Second, each part should be a basic (decla or exec)
+                foreach (string part in line.Split(';'))
+                {
+                    if (!IsDecExe(part))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
 
