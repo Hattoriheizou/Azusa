@@ -12,11 +12,10 @@ namespace MUTAN_proto
 
 
 
-        //try to evaluate the expression, will return "" if failed
+        //try to evaluate the expression, will output error message if failed
         static public bool TryParse(string expr, out string result)
         {
-
-
+            
             //no empty expression allowed
             if (expr.Trim() == "")
             {
@@ -32,7 +31,7 @@ namespace MUTAN_proto
 
             try
             {
-                //Replace each var_ID with the corresponding value of the variable
+                //If it is just a variable, reply with the corresponding value of the variable
                 if (Variables.Exist(expr))
                 {
                     result=Variables.Read(expr);
@@ -91,9 +90,34 @@ namespace MUTAN_proto
                 #endregion
 
 
+                //At this stage we should be left with rather innocence expressions
+                //However, we still need to go through quotation marks to check which operators are in fact part
+                //of a string and should not be split
+
+                List<int> InvalidOp = new List<int>();  //stores the index of operators that should be ignored
+                bool inStr=false;
+
+                #region Quotation accounting
+                if (expr.Contains("\""))
+                {
+                    for (int i = 0; i < expr.Length; i++)
+                    {
+                        if (expr[i] == '"')
+                        {
+                            inStr = !inStr;
+                        }
+                        else if (inStr)
+                        {
+                            InvalidOp.Add(i);
+                        }
+                    }
+                }
+
+                #endregion
+
                 #region Logical operators spliting
 
-                if (expr.Contains("&"))
+                if (expr.Contains("&") && !InvalidOp.Contains(expr.IndexOf("&")))
                 {
                     if (TryParse(expr.Split('&')[0], out imd) && TryParse(expr.Replace(expr.Split('&')[0] + "&", ""), out imd2))
                     {
@@ -101,7 +125,7 @@ namespace MUTAN_proto
                         return true;
                     }
                 }
-                if (expr.Contains("|"))
+                if (expr.Contains("|") && !InvalidOp.Contains(expr.IndexOf("|")))
                 {
                     if (TryParse(expr.Split('|')[0], out imd) && TryParse(expr.Replace(expr.Split('|')[0] + "|", ""), out imd2))
                     {
@@ -109,7 +133,7 @@ namespace MUTAN_proto
                         return true;
                     }
                 }
-                if (expr.Contains("="))
+                if (expr.Contains("=") && !InvalidOp.Contains(expr.IndexOf("=")))
                 {
                     //here we insert three branches to check for !=, >= and <=
                     if (expr.Split('=')[0].EndsWith("!"))   // !=
@@ -147,7 +171,7 @@ namespace MUTAN_proto
                         return true;
                     }
                 }
-                if (expr.Contains(">"))
+                if (expr.Contains(">") && !InvalidOp.Contains(expr.IndexOf(">")))
                 {
                     if (TryParse(expr.Split('>')[0], out imd) && TryParse(expr.Replace(expr.Split('>')[0] + ">", ""), out imd2))
                     {
@@ -155,7 +179,7 @@ namespace MUTAN_proto
                         return true;
                     }
                 }
-                if (expr.Contains("<"))
+                if (expr.Contains("<") && !InvalidOp.Contains(expr.IndexOf("<")))
                 {
                     if (TryParse(expr.Split('<')[0], out imd) && TryParse(expr.Replace(expr.Split('<')[0] + "<", ""), out imd2))
                     {
@@ -165,17 +189,24 @@ namespace MUTAN_proto
                 }
                 #endregion
 
-                #region Arithmetic operators spliting
-                if (expr.Contains("+"))
+                #region String concatenation and arithmetic operators spliting
+                if (expr.Contains("+") && !InvalidOp.Contains(expr.IndexOf("+")))
                 {
                     if (TryParse(expr.Split('+')[0], out imd) && TryParse(expr.Replace(expr.Split('+')[0] + "+", ""), out imd2))
                     {
-                        result = Convert.ToString(Convert.ToInt32(imd) + Convert.ToInt32(imd2));
+                        try
+                        {
+                            result = Convert.ToString(Convert.ToInt32(imd) + Convert.ToInt32(imd2));
+                        }
+                        catch
+                        {
+                            result = imd + imd2;    
+                        }
                         return true;
                     }
                 }
 
-                if (expr.Contains("-"))
+                if (expr.Contains("-") && !InvalidOp.Contains(expr.IndexOf("-")))
                 {
                     if (TryParse(expr.Split('-')[0], out imd) && TryParse(expr.Replace(expr.Split('-')[0] + "-", ""), out imd2))
                     {
@@ -184,7 +215,7 @@ namespace MUTAN_proto
                     }
                 }
 
-                if (expr.Contains("*"))
+                if (expr.Contains("*") && !InvalidOp.Contains(expr.IndexOf("*")))
                 {
                     if (TryParse(expr.Split('*')[0], out imd) && TryParse(expr.Replace(expr.Split('*')[0] + "*", ""), out imd2))
                     {
@@ -193,7 +224,7 @@ namespace MUTAN_proto
                     }
                 }
 
-                if (expr.Contains("/"))
+                if (expr.Contains("/") && !InvalidOp.Contains(expr.IndexOf("/")))
                 {
                     if (TryParse(expr.Split('/')[0], out imd) && TryParse(expr.Replace(expr.Split('/')[0] + "/", ""), out imd2))
                     {
@@ -216,17 +247,18 @@ namespace MUTAN_proto
                     }
                 }
 
-                //if all things fail, treat as a simple string
-                //remove quotations if the string is properly quoted
+                //if all things fail, treat as a simple string 
+                //for properly quoted string, quotation marks are removed
                 if (expr.StartsWith("\"") && expr.EndsWith("\""))
                 {
                     result = expr.Trim('"');
+                    return true;
                 }
                 else
                 {
                     result = expr;
+                    return true;
                 }
-                return true;
 
             }
             catch
