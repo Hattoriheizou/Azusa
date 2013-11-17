@@ -44,7 +44,14 @@ namespace MUTAN_proto
                 //Return directly the value of TRUE, FALSE or integers
                 if (expr.Trim().ToUpper() == "TRUE" || expr.Trim().ToUpper() == "FALSE" || Int32.TryParse(expr, out tmp))
                 {
-                    result = expr.Trim().TrimStart('0');    //remove starting zeros for integer
+                    if (expr.Trim().TrimStart('0') != "") //if it is not purely consists of zeros than we can trim off zeros
+                    { 
+                        result = expr.Trim().TrimStart('0');
+                    }
+                    else // otherwise just return 0
+                    {
+                        result = "0";
+                    }
                     return true;
                 }
 
@@ -284,29 +291,19 @@ namespace MUTAN_proto
         {
             //Classification should begin from large scale structure to small scale structure
             //in order to ensure correct priority
+            
+            if (IsCond(line))
+            {
+                obj = new cond(line);
+                return true;
+            }    
+
 
             if (IsMulti(line))
             {
-                string[] parts = line.Split(';');
-                IRunnable[] basics = new IRunnable[parts.Length];
-
-                for (int i = 0; i < parts.Length; i++)
-                {
-                    if (IsDecla(parts[i]))
-                    {
-                        basics[i] = new decla(parts[i]);
-                    }
-                    else
-                    {
-                        basics[i] = new exec(parts[i]);
-                    }
-                }
-
-                obj = new multi(basics);
+                obj = new multi(line);
                 return true;
-            }
-
-            
+            }            
 
             if (IsExec(line))
             {
@@ -326,14 +323,14 @@ namespace MUTAN_proto
         }
 
 
-        #region Simple check functions for different definitions
-        bool IsDecla(string line)
-        {
-            string tmp;
+        #region Simple match functions for different definitions
+        static public bool IsDecla(string line)
+        {         
 
             //first there has to be an equal sign
             if (line.Contains('='))
             {
+                string tmp;
                 string[] split = line.Split('=');
 
                 //second the left hand side must be a simple string that is not further evaluable ,ie an expression cannot be used as an ID 
@@ -341,7 +338,7 @@ namespace MUTAN_proto
                 {
                     //lastly the right hand side is a valid expression
                     if (ExprParser.TryParse(line.Replace(split[0] + "=", ""), out tmp))
-                    {
+                    {                        
                         return true;
                     }
                 }
@@ -351,13 +348,13 @@ namespace MUTAN_proto
 
         }
 
-        bool IsExec(string line)
+        static public bool IsExec(string line)
         {
-            string tmp;
-
+            
             //first there has to be a colon
             if (line.Contains(':'))
             {
+                string tmp;
                 string[] split = line.Split(':');
                 //second the left hand side must be a simple string that is not further evaluable, ie an expression cannot be used as a RID
                 if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
@@ -375,31 +372,53 @@ namespace MUTAN_proto
             return false;
         }
 
-        bool IsDecExe(string line)
+        static public bool IsBasic(string line)
         {
             return IsDecla(line) || IsExec(line);
         }
 
-        bool IsMulti(string line)
+        static public bool IsMulti(string line)
         {
-            //First it has to contain ";"
-            if (line.Contains(';'))
-            {
-                //Second, each part should be a basic (decla or exec)
+            //split each part with ';', each part should be a basic (decla or exec)
                 foreach (string part in line.Split(';'))
                 {
-                    if (!IsDecExe(part))
+                    if (!IsBasic(part))
                     {
                         return false;
                     }
                 }
 
                 return true;
-            }
-
-            return false;
         }
 
+        static public bool IsCond(string line)
+        {
+            
+            //first there has to be a question mark
+            if (line.Contains('?'))
+            {
+                string tmp;
+                string[] split=line.Split('?');
+
+                //second the left hand side has to be a valid expression
+                if (ExprParser.TryParse(split[0], out tmp))
+                {
+                    //lastly the right hand side has to be a multi
+                    if (IsMulti(line.Replace(split[0] + "?", "")))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            
+           return false;
+        }
+
+        static public bool IsStmt(string line)
+        {
+            return IsBasic(line) || IsMulti(line) || IsCond(line);
+        }
 
         #endregion
 

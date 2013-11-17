@@ -63,13 +63,27 @@ namespace MUTAN_proto
         }
     }
 
-    //The simple multi statement
+    //The multi statement
     class multi : IRunnable
     {
         IRunnable[] basics;
-        public multi(IRunnable[] lines)
+        public multi(string line)
         {
-            basics = lines;
+            string[] parts = line.Split(';');
+            basics = new IRunnable[parts.Length];
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (Classifier.IsExec(parts[i]))
+                {
+                    basics[i] = new exec(parts[i]);
+                }
+                else
+                {
+                    basics[i] = new decla(parts[i]);
+                }
+            }
+            
         }
 
         public bool Run()
@@ -82,6 +96,31 @@ namespace MUTAN_proto
                 }                
             }
             return true;
+        }
+    }
+
+    //The cond statement
+    class cond : IRunnable
+    {
+        multi content;
+        string condition;
+        public cond(string line)
+        {
+            condition = line.Split('?')[0];
+            content = new multi(line.Replace(condition + "?", ""));
+        }
+
+        public bool Run()
+        {
+            string check;
+            if(ExprParser.TryParse(condition,out check)){
+                if(Convert.ToBoolean(check)){
+                    return content.Run();
+                }
+                return true;
+            }else{
+                return false;
+            }
         }
     }
 
