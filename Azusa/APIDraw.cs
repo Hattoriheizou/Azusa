@@ -27,7 +27,7 @@ namespace Azusa
             try
             {
                 //Display-image
-                Bitmap bmp = new Bitmap(backgroundImage);
+                using(Bitmap bmp = new Bitmap(backgroundImage)){ //edit: the "using" statement ensures the bmp is properly disposed after use
                 hBitmap = bmp.GetHbitmap(Color.FromArgb(0));  //Set the fact that background is transparent
                 oldBitmap = API.SelectObject(memDc, hBitmap);
 
@@ -57,6 +57,7 @@ namespace Azusa
                     API.DeleteObject(hBitmap);
                 }
                 API.DeleteDC(memDc);
+                }
             }
             catch (Exception)
             {
