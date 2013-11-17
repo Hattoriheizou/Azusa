@@ -56,8 +56,8 @@
             // parseAsExpressionToolStripMenuItem
             // 
             this.parseAsExpressionToolStripMenuItem.Name = "parseAsExpressionToolStripMenuItem";
-            this.parseAsExpressionToolStripMenuItem.Size = new System.Drawing.Size(119, 20);
-            this.parseAsExpressionToolStripMenuItem.Text = "Parse as expression";
+            this.parseAsExpressionToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+            this.parseAsExpressionToolStripMenuItem.Text = "Run";
             this.parseAsExpressionToolStripMenuItem.Click += new System.EventHandler(this.parseAsExpressionToolStripMenuItem_Click);
             // 
             // Form1

@@ -12,19 +12,21 @@ namespace MUTAN_proto
 
 
 
-        //try to evaluate the expression, will output error message if failed
-        static public bool TryParse(string expr, out string result)
+        //Try to evaluate the expression, will output error message if failed
+        static public bool TryParse(string _expr, out string result)
         {
-            
-            //no empty expression allowed
-            if (expr.Trim() == "")
+            //Remove unnecessary spaces
+            string expr = _expr.Trim();
+
+            //No empty expression allowed
+            if (expr == "")
             {
                 result = "INVALIDEXPR";
                 return false;
             }
 
 
-            //store intermediate results
+            //Store intermediate results
             string imd;
             string imd2;
             int tmp;
@@ -34,7 +36,7 @@ namespace MUTAN_proto
                 //If it is just a variable, reply with the corresponding value of the variable
                 if (Variables.Exist(expr))
                 {
-                    result=Variables.Read(expr);
+                    result = Variables.Read(expr);
                     return true;
                 }
 
@@ -90,12 +92,12 @@ namespace MUTAN_proto
                 #endregion
 
 
-                //At this stage we should be left with rather innocence expressions
+                //At this stage we should be left with rather innocent expressions
                 //However, we still need to go through quotation marks to check which operators are in fact part
                 //of a string and should not be split
 
                 List<int> InvalidOp = new List<int>();  //stores the index of operators that should be ignored
-                bool inStr=false;
+                bool inStr = false;
 
                 #region Quotation accounting
                 if (expr.Contains("\""))
@@ -200,7 +202,7 @@ namespace MUTAN_proto
                         }
                         catch
                         {
-                            result = imd + imd2;    
+                            result = imd + imd2;
                         }
                         return true;
                     }
@@ -247,8 +249,8 @@ namespace MUTAN_proto
                     }
                 }
 
-                //if all things fail, treat as a simple string 
-                //for properly quoted string, quotation marks are removed
+                //If all things fail, treat as a simple string 
+                //For properly quoted string, quotation marks are removed
                 if (expr.StartsWith("\"") && expr.EndsWith("\""))
                 {
                     result = expr.Trim('"');
@@ -273,5 +275,83 @@ namespace MUTAN_proto
 
     }
 
+    //Used to determine type of syntax
+    static class Classifier
+    {
+        public bool TryClassify(string line, out IRunnable obj)
+        {
+
+            if (IsDecla(line))
+            {
+                obj = new decla(line);
+                return true;
+            }
+
+            obj = null;
+            return false;
+
+        }
+
+
+        #region Simple check functions for different definitions
+        bool IsDecla(string line)
+        {
+            string tmp;
+
+            //first there has to be an equal sign
+            if (line.Contains('='))
+            {
+                string[] split = line.Split('=');
+
+                //second the left hand side must be a simple string that is not further evaluable ,ie an expression cannot be used as an ID 
+                if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
+                {
+                    //lastly the right hand side is a valid expression
+                    if (ExprParser.TryParse(line.Replace(split[0] + "=", ""), out tmp))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
+        }
+
+        bool IsExec(string line)
+        {
+            string tmp;
+
+            //first there has to be a colon
+            if (line.Contains(':'))
+            {
+                string[] split = line.Split(':');
+                //second the left hand side must be a simple string that is not further evaluable, ie an expression cannot be used as a RID
+                if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
+                {
+                    //lastly the right hand side is a valid expression
+                    if (ExprParser.TryParse(line.Replace(split[0] + "=", ""), out tmp))
+                    {
+                        return true;
+                    }
+
+                }
+            }
+
+
+            return false;
+        }
+
+        bool IsDecExe(string line)
+        {
+            return IsDecla(line) || IsExec(line);
+        }
+
+
+        #endregion
+
+
+
+    }
 
 }
