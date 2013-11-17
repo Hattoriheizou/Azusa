@@ -1,5 +1,10 @@
-﻿BUG:
+﻿
+FIXED ?=================
+BUG:
 cond  cannot be parsed properly
+
+FIX: Bug somehow disappeared after second testing... will reflag this bug with more info if occurs again
+========================
 
 
 RESOLVED================

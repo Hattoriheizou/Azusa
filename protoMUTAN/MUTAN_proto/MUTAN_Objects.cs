@@ -50,15 +50,19 @@ namespace MUTAN_proto
             string arg;
             public exec(string line)
             {
-                RID = line.Split(':')[0];
-                arg = line.Replace(RID + ":", "");
+                RID = line.Split('(')[0];
+                arg = line.Replace(RID + "(", "").TrimEnd(')');
                 RID = RID.Trim();
             }
 
             public bool Run()
             {
                 string val;
-                if (ExprParser.TryParse(arg, out val))
+                if (arg == "")
+                {
+                    dummyAZUSA.CallRoutine(RID, "");
+                    return true;
+                }else if (ExprParser.TryParse(arg, out val))
                 {
                     dummyAZUSA.CallRoutine(RID, val);
                     return true;

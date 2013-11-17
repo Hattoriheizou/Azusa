@@ -35,22 +35,27 @@ namespace MUTAN_proto
         static public bool IsExec(string line)
         {
 
-            //first there has to be a colon
-            if (line.Contains(':'))
+            //first there has to be an open bracket and ends with closed bracket
+            if (line.Contains('(') && line.EndsWith(")"))
             {
                 string tmp;
-                string[] split = line.Split(':');
+                string[] split = line.Split('(');
                 //second the left hand side must be a simple string that is not further evaluable, ie an expression cannot be used as a RID
                 if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
                 {
-                    //lastly the right hand side is a valid expression
-                    if (ExprParser.TryParse(line.Replace(split[0] + ":", ""), out tmp))
+                    //lastly the content inside is a valid expression, OR an emtpy string (emtpy string is a valid expression)
+                    if (line.Replace(split[0] + "(", "").TrimEnd(')').Trim() == "")
+                    {
+                        return true;
+                    }
+                    else if (ExprParser.TryParse(line.Replace(split[0] + "(", "").TrimEnd(')'), out tmp))
                     {
                         return true;
                     }
 
                 }
             }
+            
 
 
             return false;
@@ -101,7 +106,7 @@ namespace MUTAN_proto
 
         static public bool IsStmt(string line)
         {
-            return IsMulti(line) || IsCond(line);  //what is basic is also a multi
+            return IsCond(line) || IsMulti(line);  //what is basic is also a multi
         }
 
         static public bool IsStmts(string line)

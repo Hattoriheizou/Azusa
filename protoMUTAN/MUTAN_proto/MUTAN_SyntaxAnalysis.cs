@@ -279,9 +279,9 @@ namespace MUTAN_proto
     }
 
     //Used to determine type of syntax of a single line
-    public class LineClassifier
+    public class LineParser
     {
-        public bool TryClassify(string line, out IRunnable obj)
+        public bool TryParse(string line, out IRunnable obj)
         {
             //Classification should begin from large scale structure to small scale structure
             //in order to ensure correct priority
@@ -305,7 +305,18 @@ namespace MUTAN_proto
         }
 
     }
-        
+
+    public class Parser
+    {
+        public bool TryParse(string[] lines, out IRunnable obj)
+        {
+
+
+            obj = null;
+            return false;
+        }
+
+    }
 
 
     }
