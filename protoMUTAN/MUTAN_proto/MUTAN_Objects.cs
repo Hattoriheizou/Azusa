@@ -18,6 +18,15 @@ namespace MUTAN_proto
             bool Run();
         }
 
+        //empty object for an empty code
+        class empty : IRunnable
+        {
+            public bool Run()
+            {
+                return true;
+            }
+        }
+
         //The simple decla statement
         class decla : IRunnable
         {
@@ -60,12 +69,10 @@ namespace MUTAN_proto
                 string val;
                 if (arg == "")
                 {
-                    dummyAZUSA.CallRoutine(RID, "");
-                    return true;
+                    return dummyAZUSA.CallRoutine(RID, "");
                 }else if (ExprParser.TryParse(arg, out val))
-                {
-                    dummyAZUSA.CallRoutine(RID, val);
-                    return true;
+                {                    
+                    return dummyAZUSA.CallRoutine(RID, val);
                 }
                 return false;
             }
@@ -82,7 +89,9 @@ namespace MUTAN_proto
 
                 for (int i = 0; i < parts.Length; i++)
                 {
-                    if (IsExec(parts[i]))
+                    if(IsComment(parts[i])){
+
+                    }else if (IsExec(parts[i]))
                     {
                         basics[i] = new exec(parts[i]);
                     }
@@ -96,13 +105,16 @@ namespace MUTAN_proto
 
             public bool Run()
             {
-                foreach (IRunnable basic in basics)
-                {
-                    if (!basic.Run())
+                
+                    foreach (IRunnable basic in basics)
                     {
-                        return false;
+                            if (!basic.Run())
+                            {
+                                return false;
+                            }
+                        
                     }
-                }
+                
                 return true;
             }
         }
@@ -172,7 +184,7 @@ namespace MUTAN_proto
             }
         }
 
-        //the loop statement
+        //The loop statement
         class loop : IRunnable
         {
             string content;
@@ -183,10 +195,137 @@ namespace MUTAN_proto
             }
 
             public bool Run()
-            {
-                dummyAZUSA.CreateLoop(content);
-                return true;
+            {                
+                return dummyAZUSA.CreateLoop(content);
             }
         }
+                
+
+        //The named block
+        //This definition is not implemented because during actual runtime
+        //the content of the block is parsed and executed
+        //The definition here is to keep the parser aware of the fact that this
+        //is a valid syntax so it doesn't produce error messages
+        class namedblock : IRunnable
+        {
+            IRunnable[] content;
+            string ID;
+
+            public namedblock(string[] lines)
+            {
+                ID=lines[0].Trim().TrimStart('.').TrimEnd('{');
+                content = new IRunnable[lines.Length - 2];
+                for (int i = 1; i < lines.Length - 1; i++)
+                {
+                    if(IsLoop(lines[i])){
+                        content[i] = new loop(lines[i]);
+                    }else{
+                        content[i] = new stmts(lines[i]);
+                    }
+                }
+                //the last line contains only a '}' and can be ignored
+            }
+
+            public bool Run()
+            {
+                //The block is not executed, it can only be called
+                //We include this definition to let parser know it is a valid syntax
+                //when executed the content of block is passed directly
+                
+                return true;
+            }
+
+        
+
+        }
+
+
+        //The condition block
+        class condblock : IRunnable
+        {
+            IRunnable[] content;
+            string condition;
+
+            public condblock(string[] lines)
+            {
+                condition = lines[0].Trim().TrimEnd('{');
+                content = new IRunnable[lines.Length - 2];
+                for (int i = 1; i < lines.Length - 1; i++)
+                {
+                    if (IsLoop(lines[i]))
+                    {
+                        content[i] = new loop(lines[i]);
+                    }
+                    else
+                    {
+                        content[i] = new stmts(lines[i]);
+                    }
+                }
+                //the last line contains only a '}' and can be ignored
+            }
+
+            public bool Run()
+            {
+                string check;
+                if (ExprParser.TryParse(condition, out check))
+                {
+                    if (Convert.ToBoolean(check))
+                    {
+                        foreach (IRunnable line in content)
+                        {
+                            if (!line.Run())
+                            {
+                                return false;
+                            }
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+
+
+        }
+
+        //The loop block
+        class loopblock : IRunnable
+        {
+            string[] content;
+
+            public loopblock(string[] lines)
+            {
+                content = new string[lines.Length - 2];
+                //the first line is just "@{" and can be ignored
+                for (int i = 1; i < lines.Length - 1; i++)
+                {
+                    content[i-1] = lines[i];
+                }
+                //the last line contains only a '}' and can be ignored
+            }
+
+            public bool Run()
+            {                
+                return dummyAZUSA.CreateLoop(content);
+            }
+        }
+
+        //The block, mix of lines and simple blocks
+        class block : IRunnable
+        {
+            List<IRunnable> content;
+
+            public block(string[] lines)
+            {
+
+            }
+
+            public bool Run()
+            {
+                return false;
+            }
+        }
+
+
     }
 }

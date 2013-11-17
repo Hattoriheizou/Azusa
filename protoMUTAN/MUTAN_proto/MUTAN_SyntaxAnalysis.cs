@@ -283,7 +283,13 @@ namespace MUTAN_proto
     {
         public bool TryParse(string line, out IRunnable obj)
         {
-            //Classification should begin from large scale structure to small scale structure
+            if (line.Trim() == "")
+            {
+                obj = new empty();
+                return true;
+            }
+
+            //Parsing should begin from large scale structure to small scale structure
             //in order to ensure correct priority
 
             if (IsLoop(line))
@@ -310,6 +316,9 @@ namespace MUTAN_proto
     {
         public bool TryParse(string[] lines, out IRunnable obj)
         {
+            
+
+            
 
 
             obj = null;

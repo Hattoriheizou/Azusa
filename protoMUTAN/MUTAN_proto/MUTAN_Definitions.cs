@@ -55,15 +55,20 @@ namespace MUTAN_proto
 
                 }
             }
-            
+
 
 
             return false;
         }
 
+        static public bool IsComment(string line)
+        {
+            return line.Trim() == "" || line.StartsWith("#");
+        }
+
         static public bool IsBasic(string line)
         {
-            return IsDecla(line) || IsExec(line);
+            return IsDecla(line) || IsExec(line) || IsComment(line);
         }
 
         static public bool IsMulti(string line)
@@ -135,6 +140,138 @@ namespace MUTAN_proto
                 }
             }
             return false;
+        }
+
+        static public bool IsLine(string line)
+        {
+            return IsLoop(line) || IsStmts(line);
+        }
+
+        static public bool IsNamedBlock(string[] lines)
+        {
+            //first the first line has to start with '.', ends with '{'
+            //the last line should be "}"
+            if (lines[0].Trim().StartsWith(".") && lines[0].Trim().EndsWith("{") && lines[lines.Length - 1].Trim() == "}")
+            {
+                string ID = lines[0].Trim().Trim('.', '{');
+                string tmp;
+                //second the ID should not be further evaluable, and also should not start/end with spaces
+                if (ExprParser.TryParse(ID, out tmp) && tmp == ID)
+                {
+                    //lastly all lines in content should be valid lines
+                    for (int i = 1; i < lines.Length - 1; i++)
+                    {
+                        if (!IsLine(lines[i]))
+                        {
+                            return false;
+                        }
+
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static public bool IsCondBlock(string[] lines)
+        {
+            //first the first line has to ends with '{'
+            //the last line should be "}"
+            if (lines[0].Trim().EndsWith("{") && lines[lines.Length - 1].Trim() == "}")
+            {
+                string cond = lines[0].Trim().Trim('{');
+                string tmp;
+                //second the cond should be a valid expression
+                if (ExprParser.TryParse(cond, out tmp))
+                {
+                    //lastly all lines in content should be valid lines
+                    for (int i = 1; i < lines.Length - 1; i++)
+                    {
+                        if (!IsLine(lines[i]))
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        static public bool IsLoopBlock(string[] lines)
+        {
+            //first the first line has to be '@{'
+            //the last line should be "}"
+            if (lines[0].Trim() == "@{" && lines[lines.Length - 1].Trim() == "}")
+            {
+                //all lines in content should be valid lines
+                for (int i = 1; i < lines.Length - 1; i++)
+                {
+                    if (!IsLine(lines[i]))
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
+        
+        static public bool IsBlock(string[] lines)
+        {
+            int bracketcount = 0;
+            bool inblock = false;
+            List<string> content = new List<string>();
+
+            foreach (string line in lines)
+            {
+                //see if it is beginning of a block
+                if (line.Trim().EndsWith('{'))
+                {
+                    bracketcount++;
+                    inblock = true;
+                    content.Add(line.Trim());
+                    continue;
+                }
+                
+                if (line.Trim() == "}")
+                {
+                    bracketcount--;
+                    content.Add("}");
+                    if (bracketcount == 0)
+                    {
+                        inblock = false;
+                        //check the block
+                        if (!IsNamedBlock(content.ToArray()) && !IsCondBlock(content.ToArray()) && !IsLoopBlock(content.ToArray()))
+                        {
+                            return false;
+                        }
+
+                        content.Clear();
+                    }
+                    continue;
+                }
+
+                if (inblock)
+                {
+                    content.Add(line.Trim());
+                    continue;
+                }
+
+                if (!IsLine(line))
+                {
+                    return false;
+                }
+            }
+
+            if (bracketcount != 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
