@@ -282,8 +282,8 @@ namespace MUTAN_proto
 
     }
 
-    //Used to determine type of syntax
-    class Classifier
+    //Used to determine type of syntax of a single line
+    class LineClassifier
     {
         
         
@@ -291,6 +291,12 @@ namespace MUTAN_proto
         {
             //Classification should begin from large scale structure to small scale structure
             //in order to ensure correct priority
+
+            if (IsLoop(line))
+            {
+                obj = new loop(line);
+                return true;
+            }
             
             if (IsStmts(line))
             {
@@ -417,6 +423,18 @@ namespace MUTAN_proto
             return true;
         }
 
+        static public bool IsLoop(string line)
+        {
+            //first the line has to start with '@'
+            if (line.StartsWith("@"))
+            {
+                //the rest of the line has to be a stmts
+                if(IsStmts(line.TrimStart('@'))){
+                    return true;
+                }
+            }
+            return false;
+        }
         #endregion
 
 

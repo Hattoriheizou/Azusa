@@ -18,7 +18,7 @@ namespace MUTAN_proto
 
         private void parseAsExpressionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Classifier parser = new Classifier();
+            LineClassifier parser = new LineClassifier();
             IRunnable obj;
             
                 foreach (string line in textBox1.Text.Split('\n'))

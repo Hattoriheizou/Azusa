@@ -14,7 +14,7 @@ namespace MUTAN_proto
         static Dictionary<string,string> storage=new Dictionary<string,string>();
 
         static public void Write(string name,string val){
-            MessageBox.Show("Trying to set the variable with ID \"" + name + "\" to " + val);
+            
 
             if(storage.ContainsKey(name)){
                 storage[name]=val;

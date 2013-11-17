@@ -12,5 +12,10 @@ namespace MUTAN_proto
         {
             MessageBox.Show("Routine with RID \""+RID+"\" has been called with argument \""+arg+"\".");
         }
+
+        static public void CreateLoop(string line)
+        {
+            MessageBox.Show("Looping "+line);
+        }
     }
 }

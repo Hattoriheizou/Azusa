@@ -1,7 +1,14 @@
 ﻿
+ISSUE:
+Within some of the the definitions (particularly stmts and multi), the classifier has been called.
 
+This worries me in the sense that the formal definition of the syntax has been dividedly implemented in two places
+while it should be contained in a single place for easy modification.
 
+This issue indicates a failure in the design of the class structure.
 
+I believe that the class structure should be redesigned and the codes re-implemented after basic functionality has been
+tested
 
 FIXED=================
 TRY

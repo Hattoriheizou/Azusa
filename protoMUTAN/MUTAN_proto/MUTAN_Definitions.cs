@@ -74,7 +74,7 @@ namespace MUTAN_proto
 
             for (int i = 0; i < parts.Length; i++)
             {
-                if (Classifier.IsExec(parts[i]))
+                if (LineClassifier.IsExec(parts[i]))
                 {
                     basics[i] = new exec(parts[i]);
                 }
@@ -135,7 +135,7 @@ namespace MUTAN_proto
 
             for (int i = 0; i < parts.Length; i++)
             {
-                if (Classifier.IsCond(parts[i]))
+                if (LineClassifier.IsCond(parts[i]))
                 {
                     stmt[i] = new cond(parts[i]);
                 }
@@ -156,6 +156,23 @@ namespace MUTAN_proto
                     return false;
                 }
             }
+            return true;
+        }
+    }
+
+    //the loop statement
+    class loop : IRunnable
+    {
+        string content;
+        
+        public loop(string line)
+        {
+            content = line.TrimStart('@');
+        }
+
+        public bool Run()
+        {
+            dummyAZUSA.CreateLoop(content);
             return true;
         }
     }
