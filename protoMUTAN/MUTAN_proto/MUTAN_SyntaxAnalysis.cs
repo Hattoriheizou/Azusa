@@ -303,19 +303,9 @@ namespace MUTAN_proto
             {
                 obj = new multi(line);
                 return true;
-            }            
+            }        
 
-            if (IsExec(line))
-            {
-                obj = new exec(line);
-                return true;
-            }
-
-            if (IsDecla(line))
-            {
-                obj = new decla(line);
-                return true;
-            }
+            
 
             obj = null;
             return false;
