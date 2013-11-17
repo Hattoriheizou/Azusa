@@ -54,6 +54,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="MUTAN_Definitions.cs" />
+    <Compile Include="MUTAN_Objects.cs" />
     <Compile Include="MUTAN_SyntaxAnalysis.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

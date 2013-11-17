@@ -5,176 +5,131 @@ using System.Text;
 
 namespace MUTAN_proto
 {
-    //The Runnable interface is a representation of "line" in the definition of MUTAN
-    //The only important feature is that it can be "run" since it is a valid syntax
-    //The detailed implementation of how to "run" a line is defered to more concrete classes
-    //Implementations here are just for testing purposes, please do NOT use them directly
-    //They should be rewritten when combining to other parts of AZUSA.
-
-    interface IRunnable{
-        bool Run();
-    }
-
-    //The simple decla statement
-    class decla :IRunnable
+    partial class MUTAN
     {
-        string ID;
-        string expr;
-        public decla(string line)
+        static public bool IsDecla(string line)
         {
-            ID = line.Split('=')[0];
-            expr = line.Replace(ID + "=", "");
-            ID=ID.Trim();
+
+            //first there has to be an equal sign
+            if (line.Contains('='))
+            {
+                string tmp;
+                string[] split = line.Split('=');
+
+                //second the left hand side must be a simple string that is not further evaluable ,ie an expression cannot be used as an ID
+                // or it can be an existing ID
+                if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim() || Variables.Exist(split[0].Trim()))
+                {
+                    //lastly the right hand side is a valid expression
+                    if (ExprParser.TryParse(line.Replace(split[0] + "=", ""), out tmp))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
         }
 
-        public bool Run()
+        static public bool IsExec(string line)
         {
-            string val;
-            if (ExprParser.TryParse(expr, out val))
+
+            //first there has to be a colon
+            if (line.Contains(':'))
             {
-                Variables.Write(ID, val);
-                return true;
+                string tmp;
+                string[] split = line.Split(':');
+                //second the left hand side must be a simple string that is not further evaluable, ie an expression cannot be used as a RID
+                if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
+                {
+                    //lastly the right hand side is a valid expression
+                    if (ExprParser.TryParse(line.Replace(split[0] + ":", ""), out tmp))
+                    {
+                        return true;
+                    }
+
+                }
             }
+
+
             return false;
         }
-    }
 
-    //The simple exec statement
-    class exec : IRunnable
-    {
-        string RID;
-        string arg;
-        public exec(string line)
+        static public bool IsBasic(string line)
         {
-            RID = line.Split(':')[0];
-            arg = line.Replace(RID + ":", "");
-            RID = RID.Trim();
+            return IsDecla(line) || IsExec(line);
         }
 
-        public bool Run()
+        static public bool IsMulti(string line)
         {
-            string val;
-            if (ExprParser.TryParse(arg, out val))
+            //split each part with ';', each part should be a basic (decla or exec)
+            foreach (string part in line.Split(';'))
             {
-                dummyAZUSA.CallRoutine(RID, val);
-                return true;
-            }
-            return false;
-        }
-    }
-
-    //The multi statement
-    class multi : IRunnable
-    {
-        IRunnable[] basics;
-        public multi(string line)
-        {
-            string[] parts = line.Split(';');
-            basics = new IRunnable[parts.Length];
-
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (LineClassifier.IsExec(parts[i]))
-                {
-                    basics[i] = new exec(parts[i]);
-                }
-                else
-                {
-                    basics[i] = new decla(parts[i]);
-                }
-            }
-            
-        }
-
-        public bool Run()
-        {
-            foreach (IRunnable basic in basics)
-            {
-                if (!basic.Run())
-                {
-                    return false;
-                }                
-            }
-            return true;
-        }
-    }
-
-    //The cond statement
-    class cond : IRunnable
-    {
-        multi content;
-        string condition;
-        public cond(string line)
-        {
-            condition = line.Split('?')[0];
-            content = new multi(line.Replace(condition + "?", ""));
-        }
-
-        public bool Run()
-        {
-            string check;
-            if(ExprParser.TryParse(condition,out check)){
-                if(Convert.ToBoolean(check)){
-                    return content.Run();
-                }
-                return true;
-            }else{
-                return false;
-            }
-        }
-    }
-
-    //The stmts statement
-    class stmts : IRunnable
-    {
-        IRunnable[] stmt;
-        public stmts(string line)
-        {
-            string[] parts = line.Split(';');
-            stmt = new IRunnable[parts.Length];
-
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (LineClassifier.IsCond(parts[i]))
-                {
-                    stmt[i] = new cond(parts[i]);
-                }
-                else
-                {
-                    stmt[i] = new multi(parts[i]);
-                }
-            }
-
-        }
-
-        public bool Run()
-        {
-            foreach (IRunnable obj in stmt)
-            {
-                if (!obj.Run())
+                if (!IsBasic(part))
                 {
                     return false;
                 }
             }
+
             return true;
         }
-    }
 
-    //the loop statement
-    class loop : IRunnable
-    {
-        string content;
-        
-        public loop(string line)
+        static public bool IsCond(string line)
         {
-            content = line.TrimStart('@');
+
+            //first there has to be a question mark
+            if (line.Contains('?'))
+            {
+                string tmp;
+                string[] split = line.Split('?');
+
+                //second the left hand side has to be a valid expression
+                if (ExprParser.TryParse(split[0], out tmp))
+                {
+                    //lastly the right hand side has to be a multi
+                    if (IsMulti(line.Replace(split[0] + "?", "")))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+
+            return false;
         }
 
-        public bool Run()
+        static public bool IsStmt(string line)
         {
-            dummyAZUSA.CreateLoop(content);
+            return IsMulti(line) || IsCond(line);  //what is basic is also a multi
+        }
+
+        static public bool IsStmts(string line)
+        {
+            //split each part with ';', each part should be a stmt
+            foreach (string part in line.Split(';'))
+            {
+                if (!IsStmt(part))
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
-    }
 
+        static public bool IsLoop(string line)
+        {
+            //first the line has to start with '@'
+            if (line.StartsWith("@"))
+            {
+                //the rest of the line has to be a stmts
+                if (IsStmts(line.TrimStart('@')))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 }

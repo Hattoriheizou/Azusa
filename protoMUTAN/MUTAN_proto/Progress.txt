@@ -1,4 +1,8 @@
-﻿
+﻿BUG:
+cond  cannot be parsed properly
+
+
+RESOLVED================
 ISSUE:
 Within some of the the definitions (particularly stmts and multi), the classifier has been called.
 
@@ -9,6 +13,9 @@ This issue indicates a failure in the design of the class structure.
 
 I believe that the class structure should be redesigned and the codes re-implemented after basic functionality has been
 tested
+
+RESOLVED: Group all elements into a single MUTAN class.
+========================
 
 FIXED=================
 TRY
