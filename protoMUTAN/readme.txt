@@ -6,9 +6,9 @@ The goal of this side project is to develop an interpreter that can understand p
 
 Semiformal definition of protoMUTAN:
 
-expr  :=  *          (a string, a logical or an arithmetic expression, e.g. 1+1, (1>2)&(VAR=3), ~(true&true|false),etc.)
+expr  :=  *          (cannot be emtpy, a string, a logical or an arithmetic expression, e.g. 1+1, (1>2)&(VAR=3), ~(true&true|false),etc.)
 decla :=  [$]ID=expr (a declaration statement for a variable, e.g. VAR=NYAN , X=2 ,etc.)
-exec  :=  RID:expr   (an execution command that asks AZUSA to perform a function, e.g. IMG:nyan.png , SAY:{name})
+exec  :=  RID(expr|\lambda)   (an execution command that asks AZUSA to perform a function, e.g. IMG:nyan.png , SAY:{name})
 basic  :=  decla|exec
 multi :=  basic{;basic}
 cond  :=  expr?multi
@@ -35,4 +35,11 @@ loopblock :=
 line
 {line}
 }
+
+block := line|funcblock|condblock|loopblock
+
+program := 
+block
+{block}
+
 
