@@ -38,8 +38,29 @@ line
 
 block := line|namedblock|condblock|loopblock
 
-program := 
+namedstruct :=
+.ID{
 block
 {block}
+}
+
+condstruct :=
+expr{
+block
+{block}
+}
+
+loopstruct :=
+@{
+block
+{block}
+}
+
+structure := line|namedstruct|condstruct|loopstruct
+
+
+program := 
+structure
+{structure}
 
 
