@@ -1,5 +1,9 @@
-﻿BUG TO BE FIXED:
+﻿
 
+
+
+
+FIXED=================
 TRY
 
 i=0
@@ -13,4 +17,8 @@ i=0;i=1
 
 WORKS FINE
 
-HYPOTHESIS: SOME UNKNOW CHARACTER HAS MIXED INTO THE BREAKLINE, BREAKING THE INTERPRETER
+REJECTED HYPOTHESIS: SOME UNKNOW CHARACTER HAS MIXED INTO THE BREAKLINE, BREAKING THE INTERPRETER
+
+FIXED: When checking decla , the syntax analyser neglected the fact the left hand side can also be an existing ID, in that case it is further evaluable
+The bug is now fixed.
+=====================

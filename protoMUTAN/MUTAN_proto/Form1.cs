@@ -23,7 +23,7 @@ namespace MUTAN_proto
             
                 foreach (string line in textBox1.Text.Split('\n'))
                 {
-                    if (parser.TryClassify(line, out obj))
+                    if (parser.TryClassify(line.Trim(), out obj))
                     {
                         obj.Run();
                     }

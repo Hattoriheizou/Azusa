@@ -124,4 +124,40 @@ namespace MUTAN_proto
         }
     }
 
+    //The stmts statement
+    class stmts : IRunnable
+    {
+        IRunnable[] stmt;
+        public stmts(string line)
+        {
+            string[] parts = line.Split(';');
+            stmt = new IRunnable[parts.Length];
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (Classifier.IsCond(parts[i]))
+                {
+                    stmt[i] = new cond(parts[i]);
+                }
+                else
+                {
+                    stmt[i] = new multi(parts[i]);
+                }
+            }
+
+        }
+
+        public bool Run()
+        {
+            foreach (IRunnable obj in stmt)
+            {
+                if (!obj.Run())
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
 }

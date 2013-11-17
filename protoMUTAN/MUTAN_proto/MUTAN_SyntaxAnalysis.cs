@@ -292,19 +292,11 @@ namespace MUTAN_proto
             //Classification should begin from large scale structure to small scale structure
             //in order to ensure correct priority
             
-            if (IsCond(line))
+            if (IsStmts(line))
             {
-                obj = new cond(line);
+                obj = new stmts(line);
                 return true;
             }    
-
-
-            if (IsMulti(line))
-            {
-                obj = new multi(line);
-                return true;
-            }        
-
             
 
             obj = null;
@@ -323,8 +315,9 @@ namespace MUTAN_proto
                 string tmp;
                 string[] split = line.Split('=');
 
-                //second the left hand side must be a simple string that is not further evaluable ,ie an expression cannot be used as an ID 
-                if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
+                //second the left hand side must be a simple string that is not further evaluable ,ie an expression cannot be used as an ID
+                // or it can be an existing ID
+                if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim() || Variables.Exist(split[0].Trim()))
                 {
                     //lastly the right hand side is a valid expression
                     if (ExprParser.TryParse(line.Replace(split[0] + "=", ""), out tmp))
@@ -407,7 +400,21 @@ namespace MUTAN_proto
 
         static public bool IsStmt(string line)
         {
-            return IsBasic(line) || IsMulti(line) || IsCond(line);
+            return IsMulti(line) || IsCond(line);  //what is basic is also a multi
+        }
+
+        static public bool IsStmts(string line)
+        {
+            //split each part with ';', each part should be a stmt
+            foreach (string part in line.Split(';'))
+            {
+                if (!IsStmt(part))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         #endregion
