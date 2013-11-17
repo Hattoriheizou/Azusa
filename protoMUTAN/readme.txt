@@ -18,7 +18,7 @@ loop  :=  @stmts+
 line  :=  stmts|loop
 
 (block definition)
-funcblock :=  
+namedblock :=  
 .ID{
 line
 {line}
@@ -36,7 +36,7 @@ line
 {line}
 }
 
-block := line|funcblock|condblock|loopblock
+block := line|namedblock|condblock|loopblock
 
 program := 
 block
