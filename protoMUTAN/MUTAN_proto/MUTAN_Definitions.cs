@@ -10,6 +10,7 @@ namespace MUTAN_proto
     //The detailed implementation of how to "run" a line is defered to more concrete classes
     //Implementations here are just for testing purposes, please do NOT use them directly
     //They should be rewritten when combining to other parts of AZUSA.
+
     interface IRunnable{
         bool Run();
     }
@@ -39,5 +40,27 @@ namespace MUTAN_proto
     }
 
     //The simple exec statement
-    
+    class exec : IRunnable
+    {
+        string RID;
+        string arg;
+        public exec(string line)
+        {
+            RID = line.Split(':')[0];
+            arg = line.Replace(RID + ":", "");
+            RID = RID.Trim();
+        }
+
+        public bool Run()
+        {
+            string val;
+            if (ExprParser.TryParse(arg, out val))
+            {
+                dummyAZUSA.CallRoutine(RID, val);
+                return true;
+            }
+            return false;
+        }
+    }
+
 }

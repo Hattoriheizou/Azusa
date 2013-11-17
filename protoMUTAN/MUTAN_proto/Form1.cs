@@ -18,16 +18,21 @@ namespace MUTAN_proto
 
         private void parseAsExpressionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string result;
-            if (ExprParser.TryParse(textBox1.Text, out result))
-            {
-                MessageBox.Show("The expression entered evaluated to: " + result);
-            }
-            else
-            {
-                MessageBox.Show("An error occured: " + result);
-            }
-
+            Classifier parser = new Classifier();
+            IRunnable obj;
+            
+                foreach (string line in textBox1.Text.Split('\n'))
+                {
+                    if (parser.TryClassify(line, out obj))
+                    {
+                        obj.Run();
+                    }
+                    else
+                    {
+                        MessageBox.Show("The line cannot be parsed: " + line);
+                    }
+                }
+            
         }
 
         

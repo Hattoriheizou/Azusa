@@ -276,14 +276,22 @@ namespace MUTAN_proto
     }
 
     //Used to determine type of syntax
-    static class Classifier
+    class Classifier
     {
+        
+
         public bool TryClassify(string line, out IRunnable obj)
         {
 
             if (IsDecla(line))
             {
                 obj = new decla(line);
+                return true;
+            }
+
+            if (IsExec(line))
+            {
+                obj = new exec(line);
                 return true;
             }
 
@@ -330,7 +338,7 @@ namespace MUTAN_proto
                 if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
                 {
                     //lastly the right hand side is a valid expression
-                    if (ExprParser.TryParse(line.Replace(split[0] + "=", ""), out tmp))
+                    if (ExprParser.TryParse(line.Replace(split[0] + ":", ""), out tmp))
                     {
                         return true;
                     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace MUTAN_proto
 {
@@ -16,8 +17,9 @@ namespace MUTAN_proto
             if(storage.ContainsKey(name)){
                 storage[name]=val;
             }else{
-            storage.Add(name, val);
+                storage.Add(name, val);
             }
+            MessageBox.Show("The variable with ID \"" + name + "\" has been set to " + val);
         }
         static public bool Exist(string name){
 
