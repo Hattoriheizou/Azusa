@@ -21,26 +21,22 @@ line  :=  stmts|loop
 namedblock :=  
 .ID{
 block
-{block}
 }
 
 condblock  :=  
 expr{
 block
-{block}
 }
 
 loopblock :=
 @{
 block
-{block}
 }
 
-block := line|namedblock|condblock|loopblock
+block := (line|namedblock|condblock|loopblock)*
 
 
 program := 
 block
-{block}
 
 
