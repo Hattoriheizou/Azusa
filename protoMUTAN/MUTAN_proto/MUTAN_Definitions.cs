@@ -178,16 +178,20 @@ namespace MUTAN_proto
             {
                 string cond = lines[0].Trim().Trim('{');
                 string tmp;
-                //second the cond should be a valid expression
+                bool chk;
+                //second the cond should be a valid expression and should be boolean
                 if (ExprParser.TryParse(cond, out tmp))
                 {
-                    //lastly the content should be a block
-                    string[] content=new string[lines.Length-2];
-                    for (int i=1; i < lines.Length - 1; i++)
+                    if (Boolean.TryParse(tmp, out chk))
                     {
-                        content[i - 1] = lines[i];
+                        //lastly the content should be a block
+                        string[] content = new string[lines.Length - 2];
+                        for (int i = 1; i < lines.Length - 1; i++)
+                        {
+                            content[i - 1] = lines[i];
+                        }
+                        return IsBlock(content);
                     }
-                    return IsBlock(content);
                 }
             }
             return false;

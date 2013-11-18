@@ -24,24 +24,16 @@ namespace MUTAN_proto
             if(parser.TryParse(textBox1.Text.Split('\n'),out obj))
             {
                 obj.Run();
+                MessageBox.Show("Done");
             }
             else
             {
                 MessageBox.Show("Syntax error");
             }
 
-                //foreach (string line in textBox1.Text.Split('\n'))
-                //{
-                //    if (parser.TryParse(line.Trim(), out obj))
-                //    {
-                //        obj.Run();
-                //    }
-                //    else
-                //    {
-                //        MessageBox.Show("The line cannot be parsed: " + line);
-                //    }
-                //}
             
+
+              
         }
 
         
