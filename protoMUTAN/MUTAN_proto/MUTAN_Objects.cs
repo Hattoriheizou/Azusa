@@ -90,7 +90,7 @@ namespace MUTAN_proto
                 for (int i = 0; i < parts.Length; i++)
                 {
                     if(IsComment(parts[i])){
-
+                        basics[i] = new empty();
                     }else if (IsExec(parts[i]))
                     {
                         basics[i] = new exec(parts[i]);
@@ -108,6 +108,7 @@ namespace MUTAN_proto
                 
                     foreach (IRunnable basic in basics)
                     {
+                        
                             if (!basic.Run())
                             {
                                 return false;

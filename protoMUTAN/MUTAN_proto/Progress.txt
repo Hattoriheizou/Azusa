@@ -1,4 +1,10 @@
-﻿FIXED===================
+﻿TO-DO:
+BUG TRACKING
+COMPLETE FULL DEFINITION TO ALLOW EMBEDDED BLOCKS
+
+
+
+FIXED===================
 BUG:
 When creating loop block, only the last line is passed
 
