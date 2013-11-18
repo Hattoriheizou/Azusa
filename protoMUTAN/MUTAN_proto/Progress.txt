@@ -1,4 +1,8 @@
 ﻿
+BUG:
+When creating loop block, only the last line is passed
+
+
 FIXED ?=================
 BUG:
 cond  cannot be parsed properly

@@ -316,8 +316,12 @@ namespace MUTAN_proto
     {
         public bool TryParse(string[] lines, out IRunnable obj)
         {
-            
 
+            if (IsBlock(lines))
+            {
+                obj=new block(lines);
+                return true;
+            }
             
 
 

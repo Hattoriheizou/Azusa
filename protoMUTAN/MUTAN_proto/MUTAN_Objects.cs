@@ -254,11 +254,11 @@ namespace MUTAN_proto
                 {
                     if (IsLoop(lines[i]))
                     {
-                        content[i] = new loop(lines[i]);
+                        content[i-1] = new loop(lines[i]);
                     }
                     else
                     {
-                        content[i] = new stmts(lines[i]);
+                        content[i-1] = new stmts(lines[i]);
                     }
                 }
                 //the last line contains only a '}' and can be ignored
@@ -313,16 +313,79 @@ namespace MUTAN_proto
         //The block, mix of lines and simple blocks
         class block : IRunnable
         {
-            List<IRunnable> content;
+            List<IRunnable> objects=new List<IRunnable>();
 
             public block(string[] lines)
             {
+                int bracketcount = 0;
+                bool inblock = false;
+                List<string> content = new List<string>();
 
+                foreach (string line in lines)
+                {
+                    //see if it is beginning of a block
+                    if (line.Trim().EndsWith("{"))
+                    {
+                        bracketcount++;
+                        inblock = true;
+                        content.Add(line.Trim());
+                        continue;
+                    }
+
+                    if (line.Trim() == "}")
+                    {
+                        bracketcount--;
+                        content.Add("}");
+
+                        if (bracketcount == 0)
+                        {
+                            inblock = false;
+                            //check the block
+                            if (IsLoopBlock(content.ToArray()))
+                            {
+                                objects.Add(new loopblock(content.ToArray()));
+                            }else if(IsCondBlock(content.ToArray()))
+                            {
+                                objects.Add(new condblock(content.ToArray()));
+                            }else{
+                                objects.Add(new namedblock(content.ToArray()));
+                            }
+
+                            content.Clear();
+                        }
+                        continue;
+                    }
+
+                    if (inblock)
+                    {
+                        content.Add(line.Trim());
+                        continue;
+                    }
+
+                    if (IsLine(line))
+                    {
+                        if (IsLoop(line))
+                        {
+                            objects.Add(new loop(line));
+                        }
+                        else
+                        {
+                            objects.Add(new stmts(line));
+                        }
+                    }
+                }   
             }
 
             public bool Run()
             {
-                return false;
+                foreach (IRunnable obj in objects)
+                {
+                    if (!obj.Run())
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
 

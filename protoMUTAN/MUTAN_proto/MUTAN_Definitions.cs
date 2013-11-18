@@ -228,7 +228,7 @@ namespace MUTAN_proto
             foreach (string line in lines)
             {
                 //see if it is beginning of a block
-                if (line.Trim().EndsWith('{'))
+                if (line.Trim().EndsWith("{"))
                 {
                     bracketcount++;
                     inblock = true;

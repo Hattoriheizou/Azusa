@@ -18,20 +18,29 @@ namespace MUTAN_proto
 
         private void parseAsExpressionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MUTAN.LineParser parser = new MUTAN.LineParser();
+            MUTAN.Parser parser = new MUTAN.Parser();
             MUTAN.IRunnable obj;
-            
-                foreach (string line in textBox1.Text.Split('\n'))
-                {
-                    if (parser.TryParse(line.Trim(), out obj))
-                    {
-                        obj.Run();
-                    }
-                    else
-                    {
-                        MessageBox.Show("The line cannot be parsed: " + line);
-                    }
-                }
+
+            if(parser.TryParse(textBox1.Text.Split('\n'),out obj))
+            {
+                obj.Run();
+            }
+            else
+            {
+                MessageBox.Show("Syntax error");
+            }
+
+                //foreach (string line in textBox1.Text.Split('\n'))
+                //{
+                //    if (parser.TryParse(line.Trim(), out obj))
+                //    {
+                //        obj.Run();
+                //    }
+                //    else
+                //    {
+                //        MessageBox.Show("The line cannot be parsed: " + line);
+                //    }
+                //}
             
         }
 
