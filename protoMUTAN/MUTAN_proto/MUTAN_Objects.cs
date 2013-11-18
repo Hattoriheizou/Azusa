@@ -209,21 +209,18 @@ namespace MUTAN_proto
         //is a valid syntax so it doesn't produce error messages
         class namedblock : IRunnable
         {
-            IRunnable[] content;
+            IRunnable[] objects;
             string ID;
 
             public namedblock(string[] lines)
             {
                 ID=lines[0].Trim().TrimStart('.').TrimEnd('{');
-                content = new IRunnable[lines.Length - 2];
+                string[] content = new string[lines.Length - 2];
                 for (int i = 1; i < lines.Length - 1; i++)
                 {
-                    if(IsLoop(lines[i])){
-                        content[i] = new loop(lines[i]);
-                    }else{
-                        content[i] = new stmts(lines[i]);
-                    }
+                    content[i - 1] = lines[i];
                 }
+                objects = ParseBlock(content);
                 //the last line contains only a '}' and can be ignored
             }
 
@@ -240,28 +237,21 @@ namespace MUTAN_proto
 
         }
 
-
         //The condition block
         class condblock : IRunnable
         {
-            IRunnable[] content;
+            IRunnable[] objects;
             string condition;
 
             public condblock(string[] lines)
             {
                 condition = lines[0].Trim().TrimEnd('{');
-                content = new IRunnable[lines.Length - 2];
-                for (int i = 1; i < lines.Length - 1; i++)
+                string[] content = new string[lines.Length - 2];
+                for(int i=1;i<lines.Length-1;i++)
                 {
-                    if (IsLoop(lines[i]))
-                    {
-                        content[i-1] = new loop(lines[i]);
-                    }
-                    else
-                    {
-                        content[i-1] = new stmts(lines[i]);
-                    }
+                    content[i - 1] = lines[i];
                 }
+                objects = ParseBlock(content);                
                 //the last line contains only a '}' and can be ignored
             }
 
@@ -272,14 +262,14 @@ namespace MUTAN_proto
                 {
                     if (Convert.ToBoolean(check))
                     {
-                        foreach (IRunnable line in content)
+                        foreach (IRunnable obj in objects)
                         {
-                            if (!line.Run())
+                            if (!obj.Run())
                             {
                                 return false;
-                            }
-                            return true;
+                            }                            
                         }
+                        return true;
                     }
                 }
                 return false;
@@ -314,67 +304,11 @@ namespace MUTAN_proto
         //The block, mix of lines and simple blocks
         class block : IRunnable
         {
-            List<IRunnable> objects=new List<IRunnable>();
+            IRunnable[] objects;
 
             public block(string[] lines)
             {
-                int bracketcount = 0;
-                bool inblock = false;
-                List<string> content = new List<string>();
-
-                foreach (string line in lines)
-                {
-                    //see if it is beginning of a block
-                    if (line.Trim().EndsWith("{"))
-                    {
-                        bracketcount++;
-                        inblock = true;
-                        content.Add(line.Trim());
-                        continue;
-                    }
-
-                    if (line.Trim() == "}")
-                    {
-                        bracketcount--;
-                        content.Add("}");
-
-                        if (bracketcount == 0)
-                        {
-                            inblock = false;
-                            //check the block
-                            if (IsLoopBlock(content.ToArray()))
-                            {
-                                objects.Add(new loopblock(content.ToArray()));
-                            }else if(IsCondBlock(content.ToArray()))
-                            {
-                                objects.Add(new condblock(content.ToArray()));
-                            }else{
-                                objects.Add(new namedblock(content.ToArray()));
-                            }
-
-                            content.Clear();
-                        }
-                        continue;
-                    }
-
-                    if (inblock)
-                    {
-                        content.Add(line.Trim());
-                        continue;
-                    }
-
-                    if (IsLine(line))
-                    {
-                        if (IsLoop(line))
-                        {
-                            objects.Add(new loop(line));
-                        }
-                        else
-                        {
-                            objects.Add(new stmts(line));
-                        }
-                    }
-                }   
+                objects = ParseBlock(lines);
             }
 
             public bool Run()

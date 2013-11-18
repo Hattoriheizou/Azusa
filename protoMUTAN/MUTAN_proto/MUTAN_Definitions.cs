@@ -158,16 +158,13 @@ namespace MUTAN_proto
                 //second the ID should not be further evaluable, and also should not start/end with spaces
                 if (ExprParser.TryParse(ID, out tmp) && tmp == ID)
                 {
-                    //lastly all lines in content should be valid lines
+                    //lastly the content should be a block
+                    string[] content = new string[lines.Length - 2];
                     for (int i = 1; i < lines.Length - 1; i++)
                     {
-                        if (!IsLine(lines[i]))
-                        {
-                            return false;
-                        }
-
+                        content[i - 1] = lines[i];
                     }
-                    return true;
+                    return IsBlock(content);
                 }
             }
             return false;
@@ -184,15 +181,13 @@ namespace MUTAN_proto
                 //second the cond should be a valid expression
                 if (ExprParser.TryParse(cond, out tmp))
                 {
-                    //lastly all lines in content should be valid lines
-                    for (int i = 1; i < lines.Length - 1; i++)
+                    //lastly the content should be a block
+                    string[] content=new string[lines.Length-2];
+                    for (int i=1; i < lines.Length - 1; i++)
                     {
-                        if (!IsLine(lines[i]))
-                        {
-                            return false;
-                        }                        
+                        content[i - 1] = lines[i];
                     }
-                    return true;
+                    return IsBlock(content);
                 }
             }
             return false;
@@ -204,15 +199,13 @@ namespace MUTAN_proto
             //the last line should be "}"
             if (lines[0].Trim() == "@{" && lines[lines.Length - 1].Trim() == "}")
             {
-                //all lines in content should be valid lines
+                //lastly the content should be a block
+                string[] content = new string[lines.Length - 2];
                 for (int i = 1; i < lines.Length - 1; i++)
                 {
-                    if (!IsLine(lines[i]))
-                    {
-                        return false;
-                    }                    
+                    content[i - 1] = lines[i];
                 }
-                return true;
+                return IsBlock(content);
 
             }
             return false;
@@ -260,7 +253,7 @@ namespace MUTAN_proto
                     continue;
                 }
 
-                if (!IsLine(line))
+                if (!IsLine(line.Trim()))
                 {
                     return false;
                 }

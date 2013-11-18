@@ -312,6 +312,74 @@ namespace MUTAN_proto
 
     }
 
+    //Used to parse a verified block
+    static public IRunnable[] ParseBlock(string[] lines)
+    {
+        List<IRunnable> objects=new List<IRunnable>();
+        int bracketcount = 0;
+        bool inblock = false;
+        List<string> content = new List<string>();
+
+        foreach (string line in lines)
+        {
+            //see if it is beginning of a block
+            if (line.Trim().EndsWith("{"))
+            {
+                bracketcount++;
+                inblock = true;
+                content.Add(line.Trim());
+                continue;
+            }
+
+            if (line.Trim() == "}")
+            {
+                bracketcount--;
+                content.Add("}");
+
+                if (bracketcount == 0)
+                {
+                    inblock = false;
+                    //check the block
+                    if(IsLoopBlock(content.ToArray())){
+                        objects.Add(new loopblock(content.ToArray()));
+                    }
+                    else if (IsCondBlock(content.ToArray()))
+                    {
+                        objects.Add(new condblock(content.ToArray()));
+                    }
+                    else if (IsNamedBlock(content.ToArray()))
+                    {
+                        objects.Add(new namedblock(content.ToArray()));
+                    }                    
+
+                    content.Clear();
+                }
+                continue;
+            }
+
+            if (inblock)
+            {
+                content.Add(line.Trim());
+                continue;
+            }
+
+            if (IsLine(line.Trim()))
+            {
+                if (IsLoop(line.Trim()))
+                {
+                    objects.Add(new loop(line.Trim()));
+                }
+                else
+                {
+                    objects.Add(new stmts(line.Trim()));
+                }
+            }
+        }
+
+        return objects.ToArray();
+    }
+
+    //Used to parse a program
     public class Parser
     {
         public bool TryParse(string[] lines, out IRunnable obj)
@@ -321,8 +389,7 @@ namespace MUTAN_proto
             {
                 obj=new block(lines);
                 return true;
-            }
-            
+            }           
 
 
             obj = null;

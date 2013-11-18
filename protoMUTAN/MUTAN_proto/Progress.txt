@@ -1,6 +1,12 @@
-﻿TO-DO:
-BUG TRACKING
-COMPLETE FULL DEFINITION TO ALLOW EMBEDDED BLOCKS
+﻿
+protoMUTAN Interpreter COMPLETED! YAY~
+
+Now entering testing and debugging phase
+
+THINGS TO ADD:
+-BUG TRACKING CAPABILITY 
+(Proposed Solution: 
+  add member LINENUM for each line obj, throw exception when there is an error, use an wrapping object BugTracker to catch the exception thrown)
 
 
 
