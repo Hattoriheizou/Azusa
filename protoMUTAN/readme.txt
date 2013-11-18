@@ -20,47 +20,27 @@ line  :=  stmts|loop
 (block definition)
 namedblock :=  
 .ID{
-line
-{line}
+block
+{block}
 }
 
 condblock  :=  
 expr{
-line
-{line}
+block
+{block}
 }
 
 loopblock :=
 @{
-line
-{line}
+block
+{block}
 }
 
 block := line|namedblock|condblock|loopblock
 
-namedstruct :=
-.ID{
-block
-{block}
-}
-
-condstruct :=
-expr{
-block
-{block}
-}
-
-loopstruct :=
-@{
-block
-{block}
-}
-
-structure := line|namedstruct|condstruct|loopstruct
-
 
 program := 
-structure
-{structure}
+block
+{block}
 
 
