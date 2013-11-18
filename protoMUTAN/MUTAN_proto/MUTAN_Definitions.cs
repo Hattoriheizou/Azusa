@@ -190,9 +190,9 @@ namespace MUTAN_proto
                         if (!IsLine(lines[i]))
                         {
                             return false;
-                        }
-                        return true;
+                        }                        
                     }
+                    return true;
                 }
             }
             return false;
@@ -210,9 +210,9 @@ namespace MUTAN_proto
                     if (!IsLine(lines[i]))
                     {
                         return false;
-                    }
-                    return true;
+                    }                    
                 }
+                return true;
 
             }
             return false;

@@ -25,9 +25,9 @@ namespace MUTAN_proto
             string msg="";
             foreach (string line in lines)
             {
-                msg = line + ",";
+                msg += line + ",";
             }
-            MessageBox.Show("Looping "  + msg);
+            MessageBox.Show("Looping "  + msg.TrimEnd(','));
             return true;
         }
     }

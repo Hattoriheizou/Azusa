@@ -1,6 +1,9 @@
-﻿
+﻿FIXED===================
 BUG:
 When creating loop block, only the last line is passed
+
+FIXED: A problem with dummyAZUSA, the message is reset each time instead of adding to the old message
+=======================
 
 
 FIXED ?=================
