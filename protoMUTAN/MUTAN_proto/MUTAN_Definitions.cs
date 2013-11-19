@@ -44,11 +44,11 @@ namespace MUTAN_proto
                 if (ExprParser.TryParse(split[0], out tmp) && tmp == split[0].Trim())
                 {
                     //lastly the content inside is a valid expression, OR an emtpy string (emtpy string is a valid expression)
-                    if (line.Replace(split[0] + "(", "").TrimEnd(')').Trim() == "")
+                    if (line.Substring(split[0].Length + 1, line.Length - split[0].Length -2).Trim() == "")
                     {
                         return true;
                     }
-                    else if (ExprParser.TryParse(line.Replace(split[0] + "(", "").TrimEnd(')'), out tmp))
+                    else if (ExprParser.TryParse(line.Substring(split[0].Length+1, line.Length - split[0].Length - 2), out tmp))
                     {
                         return true;
                     }

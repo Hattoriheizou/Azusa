@@ -65,14 +65,30 @@ namespace MUTAN_proto
                     {
                         if (expr[i] == '(')
                         {
-                            bracketCount++;
-                            content = "";
+                            if (bracketCount == 0)
+                            {
+                                content = "";
+                            }
+                            else
+                            {
+                                content += "(";
+                            }
+                            bracketCount++;                           
+                            
                             record = true;
                         }
                         else if (expr[i] == ')')
                         {
                             bracketCount--;
-                            record = false;
+                            if (bracketCount == 0)
+                            {
+                                record = false;
+                            }
+                            else
+                            {
+                                content += ")";
+                            }
+                            
                         }
                         else if (record)
                         {

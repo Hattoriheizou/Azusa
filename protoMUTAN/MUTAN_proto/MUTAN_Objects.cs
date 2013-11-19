@@ -70,7 +70,7 @@ namespace MUTAN_proto
             public exec(string line)
             {
                 RID = line.Split('(')[0];
-                arg = line.Replace(RID + "(", "").TrimEnd(')');
+                arg = line.Substring(RID.Length + 1, line.Length - RID.Length - 2);
                 RID = RID.Trim();
             }
 
