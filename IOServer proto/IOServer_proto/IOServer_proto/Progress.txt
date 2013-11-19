@@ -1,0 +1,3 @@
+﻿Stress test indicates that this might not be a good way for chatty communications.
+
+The IO Channel may be used for pipe assignment and intense communications should be carried out through other channels like 0MQ instead.

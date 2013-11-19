@@ -10,9 +10,9 @@ namespace IOServer_proto
     {
         static List<IOPortedPrc> CurrentProcesses=new List<IOPortedPrc>();
 
-        static public void AddProcess(string name, string enginePath, string arg = "", bool win = false)
+        static public void AddProcess(string name, string enginePath, string arg = "")
         {
-            IOPortedPrc prc = new IOPortedPrc(name, enginePath, arg, win);
+            IOPortedPrc prc = new IOPortedPrc(name, enginePath, arg);
             prc.Start();
             CurrentProcesses.Add(prc);
 
@@ -28,11 +28,22 @@ namespace IOServer_proto
 
         static public void KillAll()
         {
-            foreach (IOPortedPrc prc in CurrentProcesses)
+            List<IOPortedPrc> ListCopy = new List<IOPortedPrc>(CurrentProcesses);
+
+            foreach (IOPortedPrc prc in ListCopy)
             {
                 prc.End();
-                CurrentProcesses.Remove(prc);                
+                CurrentProcesses.Remove(prc);
             }
+
+            Refresh();
+            dummyAZUSA.Print("DEBUG: KILL ALL IS DONE.");
+            foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
+            {
+                dummyAZUSA.Print("[" + prc.Name + " is still running.]");
+            }
+            
+
         }
 
 
