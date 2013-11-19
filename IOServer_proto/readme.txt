@@ -1,4 +1,4 @@
-Using the I/O redirecting capability of .Net Processes, inter-process communication can be achieved with great simplicity in implementation.
+Using the I/O redirecting capability of .Net Processes, inter-process communication can be achieved with great implementational simplicity.
 
 The communication mode is described by a master/slave model where AZUSA is the master and all other external processes are slaves.
 
