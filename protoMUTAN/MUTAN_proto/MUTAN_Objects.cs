@@ -58,7 +58,7 @@ namespace MUTAN_proto
                 {
                     return new ReturnCode[] { new ReturnCode("VAL", ID + "=" + val) };
                 }
-                return new ReturnCode[] { new ReturnCode("ERR", expr + "IS NOT A VALID EXPRESSION.") };
+                return new ReturnCode[] { new ReturnCode("ERR", expr + " IS NOT A VALID EXPRESSION.") };
             }
         }
 
@@ -85,7 +85,7 @@ namespace MUTAN_proto
                 {
                     return new ReturnCode[] { new ReturnCode(RID, val) };
                 }
-                return new ReturnCode[] { new ReturnCode("ERR", arg + "IS NOT A VALID EXPRESSION.") };
+                return new ReturnCode[] { new ReturnCode("ERR", arg + " IS NOT A VALID EXPRESSION.") };
             }
         }
 
@@ -158,7 +158,7 @@ namespace MUTAN_proto
                 }
                 else
                 {
-                    return new ReturnCode[] { new ReturnCode("ERR", condition + "IS NOT A VALID EXPRESSION.") };
+                    return new ReturnCode[] { new ReturnCode("ERR", condition + " IS NOT A VALID EXPRESSION.") };
                 }
             }
         }
