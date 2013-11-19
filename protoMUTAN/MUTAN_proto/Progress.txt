@@ -1,12 +1,12 @@
 ﻿
-protoMUTAN Interpreter COMPLETED! YAY~
-
-Now entering testing and debugging phase
-
 THINGS TO ADD:
+-ROUTINES SHOULD BE ABLE TO RETURN VALUE(S)
+(No idea how to implement this yet)
+
 -BUG TRACKING CAPABILITY 
 (Proposed Solution: 
-  add member LINENUM for each line obj, throw exception when there is an error, use an wrapping object BugTracker to catch the exception thrown)
+  add member LINENUM for each line obj, throw exception when there is an error, use an wrapping object BugTracker to catch the exception thrown
+ Comment: Instead of each object, we should point out syntactically errors using the Is___() functions, i.e. from the definition)
 
 
 

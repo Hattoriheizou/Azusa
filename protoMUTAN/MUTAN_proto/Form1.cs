@@ -37,7 +37,8 @@ namespace MUTAN_proto
             }
             else
             {
-                MessageBox.Show("Syntax error");
+                MessageBox.Show("Syntax error");                
+                
             }
 
 
