@@ -21,9 +21,18 @@ namespace MUTAN_proto
             MUTAN.Parser parser = new MUTAN.Parser();
             MUTAN.IRunnable obj;
 
-            if(parser.TryParse(textBox1.Text.Split('\n'),out obj))
+            if (parser.TryParse(textBox1.Text.Split('\n'), out obj))
             {
-                obj.Run();
+                MUTAN.ReturnCode[] returns = obj.Run();
+
+                foreach (MUTAN.ReturnCode code in returns)
+                {
+                    if (code.Command != "")
+                    {
+                        MessageBox.Show(code.Command + "  " + code.Argument);
+                    }
+                }
+
                 MessageBox.Show("Done");
             }
             else
@@ -31,11 +40,11 @@ namespace MUTAN_proto
                 MessageBox.Show("Syntax error");
             }
 
-            
 
-              
+
+
         }
 
-        
+
     }
 }

@@ -13,17 +13,28 @@ namespace MUTAN_proto
         //Implementations here are just for testing purposes, please do NOT use them directly
         //They should be rewritten when combining to other parts of AZUSA.
 
+        public struct ReturnCode
+        {
+            public string Command, Argument;
+
+            public ReturnCode(string Cmd, string Arg)
+            {
+                Command = Cmd;
+                Argument = Arg;
+            }
+        }
+
         public interface IRunnable
         {
-            bool Run();
+            ReturnCode[] Run();
         }
 
         //empty object for an empty code
         class empty : IRunnable
         {
-            public bool Run()
+            public ReturnCode[] Run()
             {
-                return true;
+                return new ReturnCode[] { new ReturnCode("", "") };
             }
         }
 
@@ -40,15 +51,14 @@ namespace MUTAN_proto
                 ID = ID.Trim();
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
                 string val;
                 if (ExprParser.TryParse(expr, out val))
                 {
-                    Variables.Write(ID, val);
-                    return true;
+                    return new ReturnCode[] { new ReturnCode("VAL", ID + "=" + val) };
                 }
-                return false;
+                return new ReturnCode[] { new ReturnCode("ERR", expr + "IS NOT A VALID EXPRESSION.") };
             }
         }
 
@@ -64,17 +74,18 @@ namespace MUTAN_proto
                 RID = RID.Trim();
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
                 string val;
                 if (arg == "")
                 {
-                    return dummyAZUSA.CallRoutine(RID, "");
-                }else if (ExprParser.TryParse(arg, out val))
-                {                    
-                    return dummyAZUSA.CallRoutine(RID, val);
+                    return new ReturnCode[] { new ReturnCode(RID, "") };
                 }
-                return false;
+                else if (ExprParser.TryParse(arg, out val))
+                {
+                    return new ReturnCode[] { new ReturnCode(RID, val) };
+                }
+                return new ReturnCode[] { new ReturnCode("ERR", arg + "IS NOT A VALID EXPRESSION.") };
             }
         }
 
@@ -89,9 +100,11 @@ namespace MUTAN_proto
 
                 for (int i = 0; i < parts.Length; i++)
                 {
-                    if(IsComment(parts[i])){
+                    if (IsComment(parts[i]))
+                    {
                         basics[i] = new empty();
-                    }else if (IsExec(parts[i]))
+                    }
+                    else if (IsExec(parts[i]))
                     {
                         basics[i] = new exec(parts[i]);
                     }
@@ -103,20 +116,21 @@ namespace MUTAN_proto
 
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
-                
-                    foreach (IRunnable basic in basics)
+                List<ReturnCode> returns = new List<ReturnCode>();
+                ReturnCode[] tmp;
+                foreach (IRunnable basic in basics)
+                {
+                    tmp = basic.Run();
+                    foreach (ReturnCode code in tmp)
                     {
-                        
-                            if (!basic.Run())
-                            {
-                                return false;
-                            }
-                        
+                        returns.Add(code);
                     }
-                
-                return true;
+
+                }
+
+                return returns.ToArray();
             }
         }
 
@@ -131,7 +145,7 @@ namespace MUTAN_proto
                 content = new multi(line.Replace(condition + "?", ""));
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
                 string check;
                 if (ExprParser.TryParse(condition, out check))
@@ -140,11 +154,11 @@ namespace MUTAN_proto
                     {
                         return content.Run();
                     }
-                    return true;
+                    return new ReturnCode[] { new ReturnCode("", "") };
                 }
                 else
                 {
-                    return false;
+                    return new ReturnCode[] { new ReturnCode("ERR", condition + "IS NOT A VALID EXPRESSION.") };
                 }
             }
         }
@@ -172,16 +186,22 @@ namespace MUTAN_proto
 
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
+
+                List<ReturnCode> returns = new List<ReturnCode>();
+                ReturnCode[] tmp;
                 foreach (IRunnable obj in stmt)
                 {
-                    if (!obj.Run())
+                    tmp = obj.Run();
+                    foreach (ReturnCode code in tmp)
                     {
-                        return false;
+                        returns.Add(code);
                     }
+
                 }
-                return true;
+
+                return returns.ToArray();
             }
         }
 
@@ -195,12 +215,12 @@ namespace MUTAN_proto
                 content = line.TrimStart('@');
             }
 
-            public bool Run()
-            {                
-                return dummyAZUSA.CreateLoop(content);
+            public ReturnCode[] Run()
+            {
+                return new ReturnCode[] { new ReturnCode("LOOP", content) };
             }
         }
-                
+
 
         //The named block
         //This definition is not implemented because during actual runtime
@@ -214,7 +234,7 @@ namespace MUTAN_proto
 
             public namedblock(string[] lines)
             {
-                ID=lines[0].Trim().TrimStart('.').TrimEnd('{');
+                ID = lines[0].Trim().TrimStart('.').TrimEnd('{');
                 string[] content = new string[lines.Length - 2];
                 for (int i = 1; i < lines.Length - 1; i++)
                 {
@@ -224,16 +244,16 @@ namespace MUTAN_proto
                 //the last line contains only a '}' and can be ignored
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
                 //The block is not executed, it can only be called
                 //We include this definition to let parser know it is a valid syntax
                 //when executed the content of block is passed directly
-                
-                return true;
+
+                return new ReturnCode[] { new ReturnCode("", "") };
             }
 
-        
+
 
         }
 
@@ -247,32 +267,38 @@ namespace MUTAN_proto
             {
                 condition = lines[0].Trim().TrimEnd('{');
                 string[] content = new string[lines.Length - 2];
-                for(int i=1;i<lines.Length-1;i++)
+                for (int i = 1; i < lines.Length - 1; i++)
                 {
                     content[i - 1] = lines[i];
                 }
-                objects = ParseBlock(content);                
+                objects = ParseBlock(content);
                 //the last line contains only a '}' and can be ignored
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
                 string check;
                 if (ExprParser.TryParse(condition, out check))
                 {
                     if (Convert.ToBoolean(check))
                     {
+                        List<ReturnCode> returns = new List<ReturnCode>();
+                        ReturnCode[] tmp;
                         foreach (IRunnable obj in objects)
                         {
-                            if (!obj.Run())
+                            tmp = obj.Run();
+                            foreach (ReturnCode code in tmp)
                             {
-                                return false;
-                            }                            
+                                returns.Add(code);
+                            }
+
                         }
-                        return true;
+
+                        return returns.ToArray();
                     }
+                    return new ReturnCode[] { new ReturnCode("", "") };
                 }
-                return false;
+                return new ReturnCode[] { new ReturnCode("ERR", condition + " IS NOT A VALID EXPRESSION.") };
             }
 
 
@@ -290,14 +316,19 @@ namespace MUTAN_proto
                 //the first line is just "@{" and can be ignored
                 for (int i = 1; i < lines.Length - 1; i++)
                 {
-                    content[i-1] = lines[i];
+                    content[i - 1] = lines[i];
                 }
                 //the last line contains only a '}' and can be ignored
             }
 
-            public bool Run()
-            {                
-                return dummyAZUSA.CreateLoop(content);
+            public ReturnCode[] Run()
+            {
+                string msg = "";
+                foreach (string line in content)
+                {
+                    msg += line + "\n";
+                }
+                return new ReturnCode[] { new ReturnCode("MLP", msg) };
             }
         }
 
@@ -311,17 +342,23 @@ namespace MUTAN_proto
                 objects = ParseBlock(lines);
             }
 
-            public bool Run()
+            public ReturnCode[] Run()
             {
+                List<ReturnCode> returns = new List<ReturnCode>();
+                ReturnCode[] tmp;
                 foreach (IRunnable obj in objects)
                 {
-                    if (!obj.Run())
+                    tmp = obj.Run();
+                    foreach (ReturnCode code in tmp)
                     {
-                        return false;
+                        returns.Add(code);
                     }
+
                 }
-                return true;
+
+                return returns.ToArray();
             }
+
         }
 
 
