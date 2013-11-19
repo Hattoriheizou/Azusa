@@ -6,7 +6,7 @@ THINGS TO ADD:
 -BUG TRACKING CAPABILITY 
 (Proposed Solution: 
   add member LINENUM for each line obj, throw exception when there is an error, use an wrapping object BugTracker to catch the exception thrown
- Comment: Instead of each object, we should point out syntactically errors using the Is___() functions, i.e. from the definition)
+ Comment: Instead of each object, we should point out syntactical errors using the Is___() functions, i.e. from the definition)
 
 
 
