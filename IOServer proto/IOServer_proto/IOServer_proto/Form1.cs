@@ -15,5 +15,15 @@ namespace IOServer_proto
         {
             InitializeComponent();
         }
+
+        public void WriteText(string msg){
+            textBox1.Text+=msg+Environment.NewLine;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            dummyAZUSA.RegisterFormControl(this);
+            ProcessManager.AddProcess("TestClient", System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\client.exe");
+        }
     }
 }
