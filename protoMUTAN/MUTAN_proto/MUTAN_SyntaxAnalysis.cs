@@ -52,6 +52,33 @@ namespace MUTAN_proto
                     return true;
                 }
 
+
+                #region Quotation accounting
+                //First go through quotation marks to check which operators are in fact part
+                //of a string and should not be split/parsed
+
+                List<int> InvalidOp = new List<int>();  //stores the index of operators that should be ignored
+                bool inStr = false;
+
+                
+                if (expr.Contains("\""))
+                {
+                    for (int i = 0; i < expr.Length; i++)
+                    {
+                        if (expr[i] == '"')
+                        {
+                            inStr = !inStr;
+                        }
+                        else if (inStr)
+                        {
+                            InvalidOp.Add(i);
+                        }
+                    }
+                }
+
+                #endregion
+
+
                 #region Parenthesis accounting
                 //Start with deepest paranthesis if any
                 if (expr.Contains('('))
@@ -63,7 +90,7 @@ namespace MUTAN_proto
 
                     for (int i = 0; i < expr.Length; i++)
                     {
-                        if (expr[i] == '(')
+                        if (expr[i] == '(' && !InvalidOp.Contains(i))
                         {
                             if (bracketCount == 0)
                             {
@@ -77,7 +104,7 @@ namespace MUTAN_proto
                             
                             record = true;
                         }
-                        else if (expr[i] == ')')
+                        else if (expr[i] == ')' && !InvalidOp.Contains(i))
                         {
                             bracketCount--;
                             if (bracketCount == 0)
@@ -109,33 +136,7 @@ namespace MUTAN_proto
                         return false;
                     }
                 }
-                #endregion
-
-
-                //At this stage we should be left with rather innocent expressions
-                //However, we still need to go through quotation marks to check which operators are in fact part
-                //of a string and should not be split
-
-                List<int> InvalidOp = new List<int>();  //stores the index of operators that should be ignored
-                bool inStr = false;
-
-                #region Quotation accounting
-                if (expr.Contains("\""))
-                {
-                    for (int i = 0; i < expr.Length; i++)
-                    {
-                        if (expr[i] == '"')
-                        {
-                            inStr = !inStr;
-                        }
-                        else if (inStr)
-                        {
-                            InvalidOp.Add(i);
-                        }
-                    }
-                }
-
-                #endregion
+                #endregion               
 
                 #region Logical operators spliting
 
@@ -329,7 +330,7 @@ namespace MUTAN_proto
     }
 
     //Used to parse a verified block
-    static public IRunnable[] ParseBlock(string[] lines)
+    static IRunnable[] ParseBlock(string[] lines)
     {
         List<IRunnable> objects=new List<IRunnable>();
         int bracketcount = 0;

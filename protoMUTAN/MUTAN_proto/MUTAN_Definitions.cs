@@ -94,7 +94,7 @@ namespace MUTAN_proto
             //first there has to be a question mark
             if (line.Contains('?'))
             {
-                string tmp;
+                //string tmp;
                 string[] split = line.Split('?');
 
                 ////second the left hand side has to be a valid expression
