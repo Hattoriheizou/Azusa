@@ -50,8 +50,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AZUSAAppContext.cs" />
+    <Compile Include="IOPortedPrc.cs" />
+    <Compile Include="MUTAN_Definitions.cs" />
+    <Compile Include="MUTAN_Objects.cs" />
+    <Compile Include="MUTAN_SyntaxAnalysis.cs" />
+    <Compile Include="ProcessManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Variables.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
