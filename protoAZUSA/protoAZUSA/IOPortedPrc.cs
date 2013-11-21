@@ -7,11 +7,7 @@ using System.Diagnostics;
 namespace AZUSA
 {
     enum EngineType{Input,Output,AI,Routine }
-
-    struct RIDLinkage{
-        public string RID;
-        public bool ArgOnly;
-    }
+    
 
 
     class IOPortedPrc
@@ -20,8 +16,8 @@ namespace AZUSA
         public Process Engine;
         public EngineType Type;
 
-        public List<int> Ports = new List<int>();
-        public List<RIDLinkage> RIDs = new List<RIDLinkage>();
+        public List<string> Ports = new List<string>();
+        public Dictionary<string,bool> RIDs = new Dictionary<string,bool>();
 
         public IOPortedPrc(string name, string enginePath, string arg = "")
         {
@@ -61,8 +57,6 @@ namespace AZUSA
             Engine.BeginOutputReadLine();
             Engine.StandardInput.AutoFlush = true;
 
-            //dummyAZUSA.Print("[" + Name + " has started.]");
-
         }
 
         public void Pause()
@@ -83,13 +77,6 @@ namespace AZUSA
             Engine.Dispose();
             Engine = null;
 
-            //dummyAZUSA.Print("[" + Name + " has ended.]");
-
-            foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
-            {
-                //dummyAZUSA.Print("[" + prc.Name + " is still running.]");
-            }
-
         }
 
 
@@ -97,29 +84,89 @@ namespace AZUSA
         {
             ProcessManager.RemoveProcess(this);
             Engine.CancelOutputRead();
-
-
-            //dummyAZUSA.Print("[" + Name + " has ended.]");
-
-            foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
-            {
-                //dummyAZUSA.Print("[" + prc.Name + " is still running.]");
-            }
         }
 
         void Engine_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            //dummyAZUSA.Print(Engine.Id + " : " + e.Data);
-
-            if (e.Data.Trim() == "NYAN")
+            //First check if the engine is asking a question about value of an expression
+            if (e.Data.EndsWith("?"))
             {
-                Engine.StandardInput.WriteLine("NYAN");
+                string result;
+                MUTAN.ExprParser.TryParse(e.Data.TrimEnd('?'),out result);
+                Engine.StandardInput.WriteLine(result);
+                return;
             }
 
-            if (e.Data.Trim() == "WAIT")
+
+            //If no then assume it is a MUTAN command and try parsing, if failed to parse, ignore.
+            MUTAN.LineParser parser = new MUTAN.LineParser();
+            MUTAN.IRunnable obj;
+            if (parser.TryParse(e.Data, out obj))
             {
-                System.Threading.Thread.Sleep(8000);
+                MUTAN.ReturnCode[] returns = obj.Run();
+
+                foreach (MUTAN.ReturnCode code in returns)
+                {
+
+                    //Handle NYAN protocol related commands, leave the rest to AZUSA execution core
+                    switch (code.Command)
+                    {
+                        case "RegisterAs":
+                            switch (code.Argument)
+                            {
+                                case "AI":
+                                    this.Type = EngineType.AI;
+                                    break;
+                                case "Input":
+                                    this.Type = EngineType.Input;
+                                    break;
+                                case "Output":
+                                    this.Type = EngineType.Output;
+                                    break;
+                                case "Routine":
+                                    this.Type = EngineType.Routine;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case "RegisterPort":
+                            this.Ports.Add(code.Argument);                            
+                            break;
+                        case "GetInputPorts":
+                            string result = "";
+                            foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
+                            {
+                                if (prc.Type == EngineType.Input)
+                                {
+                                    foreach (string port in prc.Ports)
+                                    {
+                                        result += port + ",";
+                                    }
+                                }
+                            }
+
+                            Engine.StandardInput.WriteLine(result.Trim(','));
+
+                            break;
+                        case "LinkRID":
+                            string[] parsed = code.Argument.Split(',');
+                            
+                            this.RIDs.Add(parsed[0],Convert.ToBoolean(parsed[1]));
+
+                            break;
+                        default:
+
+                            Internals.Execute(code.Command, code.Argument);
+
+                            break;
+
+
+
+                    }
+                }
             }
+
         }
 
 

@@ -399,8 +399,53 @@ namespace AZUSA
     //Used to parse a program
     public class Parser
     {
-        public bool TryParse(string[] lines, out IRunnable obj)
+        public bool TryParse(string[] program, out IRunnable obj,string part="")
         {
+            string[] lines=program;
+
+            if (part != "")
+            {
+                List<string> tmp = new List<string>();
+                bool inpart = false;
+                int bracCount = 0;
+                foreach (string ln in program)
+                {
+                    if (inpart && ln.EndsWith("{"))
+                    {
+                        bracCount++;
+                        tmp.Add(ln);
+                        continue;
+                    }
+                    if (inpart && ln.Trim() == "}")
+                    {
+                        bracCount--;
+                        if (bracCount == 0)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            tmp.Add(ln);
+                        }
+                    }
+                    if (ln.Trim() == "." + part + "{")
+                    {
+                        bracCount++;
+                        inpart = true;
+                        continue;
+                    }
+                    
+                    if (inpart)
+                    {
+                        tmp.Add(ln);
+                        continue;
+                    }
+                }
+
+                lines = tmp.ToArray();
+            }
+
+            
 
             if (IsBlock(lines))
             {

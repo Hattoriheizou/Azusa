@@ -50,7 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AZUSAAppContext.cs" />
+    <Compile Include="Internals.cs" />
     <Compile Include="IOPortedPrc.cs" />
+    <Compile Include="LoopThread.cs" />
     <Compile Include="MUTAN_Definitions.cs" />
     <Compile Include="MUTAN_Objects.cs" />
     <Compile Include="MUTAN_SyntaxAnalysis.cs" />
