@@ -6,8 +6,8 @@ using System.Diagnostics;
 
 namespace AZUSA
 {
-    enum EngineType{Input,Output,AI,Routine }
-    
+    enum EngineType { Input, Output, AI, Routine }
+
 
 
     class IOPortedPrc
@@ -18,13 +18,13 @@ namespace AZUSA
         public EngineType Type;
 
         public List<string> Ports = new List<string>();
-        public Dictionary<string,bool> RIDs = new Dictionary<string,bool>();
+        public Dictionary<string, bool> RIDs = new Dictionary<string, bool>();
 
         public IOPortedPrc(string name, string enginePath, string arg = "")
         {
 
             Name = name;
-            
+
             //default type is Routine until the Engine self-identifies itself
             Type = EngineType.Routine;
 
@@ -53,8 +53,8 @@ namespace AZUSA
 
         public void Start()
         {
-
             Engine.Start();
+
             Engine.BeginOutputReadLine();
             Engine.StandardInput.AutoFlush = true;
 
@@ -64,7 +64,11 @@ namespace AZUSA
 
         public void Pause()
         {
-            Engine.CancelOutputRead();
+            try
+            {
+                Engine.CancelOutputRead();
+            }
+            catch { }
         }
 
         public void Resume()
@@ -74,8 +78,11 @@ namespace AZUSA
 
         public void End()
         {
-
-            Engine.CancelOutputRead();
+            try
+            {
+                Engine.CancelOutputRead();
+            }
+            catch { }
             Engine.Kill();
             Engine.Dispose();
             Engine = null;
@@ -98,7 +105,11 @@ namespace AZUSA
         void Engine_Exited(object sender, EventArgs e)
         {
             ProcessManager.RemoveProcess(this);
-            Engine.CancelOutputRead();
+            try
+            {
+                Engine.CancelOutputRead();
+            }
+            catch { }
             if (Type == EngineType.AI)
             {
                 ProcessManager.AIPid.Remove(pid);
@@ -115,29 +126,42 @@ namespace AZUSA
 
         void Engine_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
+            //Ignore NULL and empty inputs that will crash the program
+            if (e.Data == null || e.Data.Trim() == "")
+            {
+                return;
+            }
+
             //First check if the engine is asking a question about value of an expression
             if (e.Data.EndsWith("?"))
             {
                 string result;
-                MUTAN.ExprParser.TryParse(e.Data.TrimEnd('?'),out result);
+                MUTAN.ExprParser.TryParse(e.Data.TrimEnd('?'), out result);
                 Engine.StandardInput.WriteLine(result);
                 return;
             }
 
 
             //If no then assume it is a MUTAN command and try parsing, if failed to parse, ignore.
-            MUTAN.LineParser parser = new MUTAN.LineParser();
             MUTAN.IRunnable obj;
-            if (parser.TryParse(e.Data, out obj))
+            if (MUTAN.LineParser.TryParse(e.Data, out obj))
             {
                 MUTAN.ReturnCode[] returns = obj.Run();
 
                 foreach (MUTAN.ReturnCode code in returns)
                 {
 
-                    //Handle NYAN protocol related commands, leave the rest to AZUSA execution core
+                    //Handle NYAN protocol related commands, leave the rest to AZUSA internals
                     switch (code.Command)
                     {
+                        case "Debugging":
+                            ProcessManager.AIPid.Add(pid);
+                            ProcessManager.InputPid.Add(pid);
+                            ProcessManager.OutputPid.Add(pid);
+                            break;
+                        case "GetAzusaPid":
+                            Engine.StandardInput.WriteLine(Process.GetCurrentProcess().Id);
+                            break;
                         case "RegisterAs":
                             switch (code.Argument)
                             {
@@ -161,7 +185,7 @@ namespace AZUSA
                             }
                             break;
                         case "RegisterPort":
-                            this.Ports.Add(code.Argument);                            
+                            this.Ports.Add(code.Argument);
                             break;
                         case "GetInputPorts":
                             string result = "";
@@ -181,8 +205,8 @@ namespace AZUSA
                             break;
                         case "LinkRID":
                             string[] parsed = code.Argument.Split(',');
-                            
-                            this.RIDs.Add(parsed[0],Convert.ToBoolean(parsed[1]));
+
+                            this.RIDs.Add(parsed[0], Convert.ToBoolean(parsed[1]));
 
                             break;
                         default:
@@ -192,9 +216,6 @@ namespace AZUSA
                             }
 
                             break;
-
-
-
                     }
                 }
             }

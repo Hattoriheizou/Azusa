@@ -1,4 +1,9 @@
-﻿Issue:
+﻿
+TEST AND LOOK FOR NEW BUGS
+ADD START UP SCRIPT(?)
+
+RESOLVED==================
+Issue:
 Make sure that all components are ready before executing any actual commands.
 Otherwise the commands that are supposed to be routed will be treated as Routines and cause error.
 

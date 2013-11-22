@@ -13,9 +13,7 @@ namespace AZUSA
 
         public AZUSAAppContext()
         {
-            Internals.INIT();          
-
-            
+            Internals.INIT();      
         }
     }
 }

@@ -7,7 +7,7 @@ namespace AZUSA
 {
     partial class MUTAN{
     //Used to parse expressions
-    public class ExprParser
+    static public class ExprParser
     {
         //Try to evaluate the expression, will output error message if failed
         static public bool TryParse(string _expr, out string result)
@@ -296,9 +296,9 @@ namespace AZUSA
     }
 
     //Used to determine type of syntax of a single line
-    public class LineParser
+    static public class LineParser
     {
-        public bool TryParse(string line, out IRunnable obj)
+        static public bool TryParse(string line, out IRunnable obj)
         {
             if (line.Trim() == "")
             {
@@ -397,9 +397,9 @@ namespace AZUSA
     }
 
     //Used to parse a program
-    public class Parser
+    static public class Parser
     {
-        public bool TryParse(string[] program, out IRunnable obj,string part="")
+        static public bool TryParse(string[] program, out IRunnable obj,string part="")
         {
             string[] lines=program;
 

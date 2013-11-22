@@ -56,9 +56,14 @@ namespace AZUSA
                 string val;
                 if (ExprParser.TryParse(expr, out val))
                 {
-                    return new ReturnCode[] { new ReturnCode("VAL", ID + "=" + val) };
+                    Variables.Write(ID, val);
+                    return new ReturnCode[] { new ReturnCode("", "") };
                 }
-                return new ReturnCode[] { new ReturnCode("ERR", expr + " IS NOT A VALID EXPRESSION.("+val+")") };
+                else
+                {
+                    return new ReturnCode[] { new ReturnCode("ERR", expr +" is not a valid expression (Trying to set "+ID+" to "+expr+".)") };
+                }               
+                
             }
         }
 
@@ -76,16 +81,19 @@ namespace AZUSA
 
             public ReturnCode[] Run()
             {
+                //if empty argument (which is NOT a valid expression for maintaining proper parsing)
+                if (arg.Trim() == "")
+                {
+                    return new ReturnCode[] { new ReturnCode(RID, "") }; 
+                }
+
                 string val;
-                if (arg == "")
+                if (!ExprParser.TryParse(arg, out val))
                 {
-                    return new ReturnCode[] { new ReturnCode(RID, "") };
+                    return new ReturnCode[] { new ReturnCode("ERR", arg + " is not a valid expression. (Trying to run " + RID+ "(" + arg + ").)") };     
                 }
-                else if (ExprParser.TryParse(arg, out val))
-                {
-                    return new ReturnCode[] { new ReturnCode(RID, val) };
-                }
-                return new ReturnCode[] { new ReturnCode("ERR", arg + " IS NOT A VALID EXPRESSION.(" + val + ")") };
+                
+               return new ReturnCode[] { new ReturnCode(RID, val) };                
             }
         }
 
@@ -157,7 +165,7 @@ namespace AZUSA
                     }
                     catch
                     {
-                        return new ReturnCode[] { new ReturnCode("ERR", condition + " IS NOT A VALID BOOLEAN.("+check+")") };
+                        return new ReturnCode[] { new ReturnCode("ERR", condition + " is not a valid boolean.("+check+")") };
                     }
                     if (chk)
                     {
@@ -167,7 +175,7 @@ namespace AZUSA
                 }
                 else
                 {
-                    return new ReturnCode[] { new ReturnCode("ERR", condition + " IS NOT A VALID EXPRESSION.(" + check + ")") };
+                    return new ReturnCode[] { new ReturnCode("ERR", condition + " is not a valid expression.(" + check + ")") };
                 }
             }
         }
@@ -296,7 +304,7 @@ namespace AZUSA
                     }
                     catch
                     {
-                        return new ReturnCode[] { new ReturnCode("ERR", condition + " IS NOT A VALID BOOLEAN.(" + check + ")") };
+                        return new ReturnCode[] { new ReturnCode("ERR", condition + " is not a valid boolean.(" + check + ")") };
                     }
                     if (chk)
                     {
@@ -316,7 +324,7 @@ namespace AZUSA
                     }
                     return new ReturnCode[] { new ReturnCode("", "") };
                 }
-                return new ReturnCode[] { new ReturnCode("ERR", condition + " IS NOT A VALID EXPRESSION.(" + check + ")") };
+                return new ReturnCode[] { new ReturnCode("ERR", condition + " is not a valid expression.(" + check + ")") };
             }
 
 

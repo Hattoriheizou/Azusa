@@ -39,10 +39,11 @@ namespace AZUSA
                 ProcessManager.AddProcess(exePath.Replace(EngPath + @"\", "").Replace(".exe", "").Trim(), exePath);
             }
 
+            System.Threading.Thread.Sleep(1000);
+
             if (!ProcessManager.CheckCompleteness())
             {
-                notifyIcon.ShowBalloonTip(1000, "AZUSA", "Some component is still missing", ToolTipIcon.Error);
-                
+                notifyIcon.ShowBalloonTip(1000, "AZUSA", "Some engines are missing. AZUSA will not function unless AI and I/O are all registered.", ToolTipIcon.Error);                
             }
         }
 
@@ -57,15 +58,19 @@ namespace AZUSA
 
         static public void EXIT()
         {
+            ThreadManager.BreakAll();
             ProcessManager.KillAll();
             Variables.Save(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA");
+            notifyIcon.Dispose();
             Application.Exit();
         }
 
         static public void RESTART()
         {
+            ThreadManager.BreakAll();
             ProcessManager.KillAll();
             Variables.Save(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA");
+            notifyIcon.Dispose();
             Application.Restart();
         }
 
@@ -102,36 +107,48 @@ namespace AZUSA
             }
 
             //No need to continue executing the command because it has been routed already
-            if (routed) { return; }
+            if (routed) { return; }            
 
             //Internal commands
             switch (cmd)
             {
+                case "":
+                    //do nothing
+                    break;
                 case "VAR":
                     string ID = arg.Split('=')[0];
                     string val = arg.Replace(ID + "=", "").Trim();
                     Variables.Write(ID, val);
                     break;
                 case "LOOP":
-
+                    string[] content = new string[] { arg };
+                    ThreadManager.AddLoop(content);
                     break;
                 case "MLOOP":
-
+                    ThreadManager.AddLoop(arg.Split('\n'));
                     break;
                 case "SCRIPT":
-                    MUTAN.Parser parser = new MUTAN.Parser();
                     MUTAN.IRunnable obj;
                     
                     string[] scr = arg.Split('.');
-                    string[] program = File.ReadAllLines(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\Scripts\" + scr[0]);
+                    string[] program;
+                    try
+                    {
+                        program = File.ReadAllLines(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\Scripts\" + scr[0]);
+                    }
+                    catch
+                    {
+                        Internals.ERROR("Unable to find the script named " + scr[0] + ". Please make sure it is in the correct folder.");
+                        return;
+                    }
 
                     if (scr.Length == 2)
                     {
-                        parser.TryParse(program, out obj, scr[1].Trim());                        
+                        MUTAN.Parser.TryParse(program, out obj, scr[1].Trim());                        
                     }
                     else
                     {
-                        parser.TryParse(program, out obj);
+                        MUTAN.Parser.TryParse(program, out obj);
                     }
 
                     foreach (MUTAN.ReturnCode code in obj.Run())
@@ -164,7 +181,11 @@ namespace AZUSA
         static public void Execute(string cmd, string arg, LoopThread caller)
         {
             //check if there is a break loop command
-
+            if (cmd.Trim() == "BREAK")
+            {
+                caller.Break();
+                return;
+            }
 
             //else, execute using the usual routine
             Execute(cmd, arg);

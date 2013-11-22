@@ -6,10 +6,11 @@ using System.Windows.Forms;
 using System.IO;
 
 namespace AZUSA
-{    
+{
     static class Variables
     {
-        static Dictionary<string,string> storage=new Dictionary<string,string>();
+        static Dictionary<string, string> storage = new Dictionary<string, string>();
+        static string[] DateTimeVars = new string[] { "Y", "M", "D", "h", "m", "s", "d" };
 
         static public void Load(string filePath)
         {
@@ -23,8 +24,8 @@ namespace AZUSA
                     if (line.Trim() != "" && !line.StartsWith("#"))
                     {
                         entry = line.Trim().Split('=');
-                        ID=entry[0];
-                        Write(ID.Trim(), line.Replace(ID+"=","").Trim());
+                        ID = entry[0];
+                        Write(ID.Trim(), line.Replace(ID + "=", "").Trim());
                     }
                 }
                 catch
@@ -59,7 +60,7 @@ namespace AZUSA
                     //see if the variable already exists
                     if (storage.ContainsKey(ID))
                     {
-                        newConfig.Add(ID + "=" + storage[ID]);                        
+                        newConfig.Add(ID + "=" + storage[ID]);
                     }
                     else //keep it
                     {
@@ -84,25 +85,64 @@ namespace AZUSA
 
 
             File.WriteAllLines(filePath, newConfig.ToArray());
-            
+
         }
 
-        static public void Write(string name,string val){        
-            if(storage.ContainsKey(name)){
-                storage[name]=val;
-            }else{
+        static public void Write(string name, string val)
+        {
+            //cannot write to date time variables
+            if(DateTimeVars.Contains(name)){
+                return;
+            }
+
+            if (storage.ContainsKey(name))
+            {
+                storage[name] = val;
+            }
+            else
+            {
                 storage.Add(name, val);
             }
         }
 
-        static public bool Exist(string name){
-
+        static public bool Exist(string name)
+        {
+            //interrupt for date time variables
+            if (DateTimeVars.Contains(name)) { return true; }
             return storage.ContainsKey(name);
         }
 
         static public string Read(string name)
         {
-            return storage[name];
+            //interrupt with date time variables
+            switch (name)
+            {
+                case "Y":
+                    return DateTime.Now.Year.ToString();
+
+                case "M":
+                    return DateTime.Now.Month.ToString();
+
+                case "D":
+                    return DateTime.Now.Day.ToString();
+
+                case "h":
+                    return DateTime.Now.Hour.ToString();
+
+                case "m":
+                    return DateTime.Now.Minute.ToString();
+
+                case "s":
+                    return DateTime.Now.Second.ToString();
+
+                case "d":
+                    return DateTime.Now.DayOfWeek.ToString();
+
+                default:                    
+                    return storage[name];                    
+            }
+
+
         }
     }
 }
