@@ -1,0 +1,5 @@
+﻿Issue:
+Make sure that all components are ready before executing any actual commands.
+Otherwise the commands that are supposed to be routed will be treated as Routines and cause error.
+
+Make sure that when engines readline they check that the content is not NULL before doing anything substantial, otherwise disastrous error may be caused
