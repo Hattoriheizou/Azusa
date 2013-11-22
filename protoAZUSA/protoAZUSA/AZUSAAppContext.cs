@@ -13,16 +13,9 @@ namespace AZUSA
 
         public AZUSAAppContext()
         {
-            Internals.INIT();
-            
+            Internals.INIT();          
 
-            //Start the engines
-            string EngPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\Engines";
-            string[] EngList = System.IO.Directory.GetFiles(EngPath, "*.exe");
-            foreach (string exePath in EngList)
-            {                
-                ProcessManager.AddProcess(exePath.Replace(EngPath + @"\", "").Replace(".exe", "").Trim(), exePath);
-            }
+            
         }
     }
 }

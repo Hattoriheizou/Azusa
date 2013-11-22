@@ -10,6 +10,7 @@ namespace AZUSA
 {
     class Internals
     {
+
         static NotifyIcon notifyIcon = new NotifyIcon();
 
         static public void INIT()
@@ -28,6 +29,21 @@ namespace AZUSA
             ContextMenu menu = new ContextMenu(new MenuItem[]{itmEXIT,itmRELD});
 
             notifyIcon.ContextMenu = menu;
+
+
+            //Start the engines
+            string EngPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\Engines";
+            string[] EngList = System.IO.Directory.GetFiles(EngPath, "*.exe");
+            foreach (string exePath in EngList)
+            {
+                ProcessManager.AddProcess(exePath.Replace(EngPath + @"\", "").Replace(".exe", "").Trim(), exePath);
+            }
+
+            if (!ProcessManager.CheckCompleteness())
+            {
+                notifyIcon.ShowBalloonTip(1000, "AZUSA", "Some component is still missing", ToolTipIcon.Error);
+                
+            }
         }
 
         static void itmRELD_Click(object sender, EventArgs e)

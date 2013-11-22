@@ -13,6 +13,7 @@ namespace AZUSA
     class IOPortedPrc
     {
         public string Name;
+        public int pid;
         public Process Engine;
         public EngineType Type;
 
@@ -57,6 +58,8 @@ namespace AZUSA
             Engine.BeginOutputReadLine();
             Engine.StandardInput.AutoFlush = true;
 
+            pid = Engine.Id;
+
         }
 
         public void Pause()
@@ -76,6 +79,18 @@ namespace AZUSA
             Engine.Kill();
             Engine.Dispose();
             Engine = null;
+            if (Type == EngineType.AI)
+            {
+                ProcessManager.AIPid.Remove(pid);
+            }
+            else if (Type == EngineType.Input)
+            {
+                ProcessManager.InputPid.Remove(pid);
+            }
+            else if (Type == EngineType.Output)
+            {
+                ProcessManager.OutputPid.Remove(pid);
+            }
 
         }
 
@@ -84,6 +99,18 @@ namespace AZUSA
         {
             ProcessManager.RemoveProcess(this);
             Engine.CancelOutputRead();
+            if (Type == EngineType.AI)
+            {
+                ProcessManager.AIPid.Remove(pid);
+            }
+            else if (Type == EngineType.Input)
+            {
+                ProcessManager.InputPid.Remove(pid);
+            }
+            else if (Type == EngineType.Output)
+            {
+                ProcessManager.OutputPid.Remove(pid);
+            }
         }
 
         void Engine_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -116,12 +143,15 @@ namespace AZUSA
                             {
                                 case "AI":
                                     this.Type = EngineType.AI;
+                                    ProcessManager.AIPid.Add(pid);
                                     break;
                                 case "Input":
                                     this.Type = EngineType.Input;
+                                    ProcessManager.InputPid.Add(pid);
                                     break;
                                 case "Output":
                                     this.Type = EngineType.Output;
+                                    ProcessManager.OutputPid.Add(pid);
                                     break;
                                 case "Routine":
                                     this.Type = EngineType.Routine;
@@ -156,8 +186,10 @@ namespace AZUSA
 
                             break;
                         default:
-
-                            Internals.Execute(code.Command, code.Argument);
+                            if (ProcessManager.CheckCompleteness())
+                            {
+                                Internals.Execute(code.Command, code.Argument);
+                            }
 
                             break;
 

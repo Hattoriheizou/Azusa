@@ -10,6 +10,16 @@ namespace AZUSA
     {
         static List<IOPortedPrc> CurrentProcesses=new List<IOPortedPrc>();
 
+        static public List<int> AIPid = new List<int>();
+        static public List<int> InputPid = new List<int>();
+        static public List<int> OutputPid=new List<int>();
+
+        static public bool CheckCompleteness()
+        {
+            return AIPid.Count != 0 && InputPid.Count != 0 && OutputPid.Count != 0;
+        }
+
+
         static public void AddProcess(string name, string enginePath, string arg = "")
         {
             IOPortedPrc prc = new IOPortedPrc(name, enginePath, arg);
@@ -20,7 +30,7 @@ namespace AZUSA
 
         static public void RemoveProcess(IOPortedPrc prc)
         {
-            CurrentProcesses.Remove(prc);
+            CurrentProcesses.Remove(prc);           
 
         }
 
