@@ -3,6 +3,7 @@
 
 Issue:
 String cannot contain quotaion marks as content (MUTAN_SyntaxAnalysis.cs Ln87)
+Bug tracking for script is still very primitive.
 
 
 TEST AND LOOK FOR NEW BUGS

@@ -187,9 +187,16 @@ namespace AZUSA
                         MUTAN.Parser.TryParse(program, out obj);
                     }
 
-                    foreach (MUTAN.ReturnCode code in obj.Run())
+                    if (obj != null)
                     {
-                        Execute(code.Command, code.Argument);
+                        foreach (MUTAN.ReturnCode code in obj.Run())
+                        {
+                            Execute(code.Command, code.Argument);
+                        }
+                    }
+                    else
+                    {
+                        ERROR("An error occured while running script named " + scr[0]+". Please make sure there is no syntax error.");
                     }
                     break;
                 case "WAIT":
@@ -217,11 +224,7 @@ namespace AZUSA
         static public void Execute(string cmd, string arg, LoopThread caller)
         {
             //check if there is a break loop command
-            if (cmd.Trim() == "BREAK")
-            {
-                caller.Break();
-                return;
-            }
+            
 
             //else, execute using the usual routine
             Execute(cmd, arg);

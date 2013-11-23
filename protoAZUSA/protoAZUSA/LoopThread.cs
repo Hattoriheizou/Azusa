@@ -12,6 +12,7 @@ namespace AZUSA
             string[] codes;
             Thread thread;
             MUTAN.IRunnable obj;
+            bool BREAKING=false;
 
             public LoopThread(string[] content)
             {
@@ -21,23 +22,42 @@ namespace AZUSA
             }
 
             public void Break(){
+                BREAKING = true;
                 thread.Abort();
                 thread = null;
             }
 
             ~LoopThread()
             {
-                thread.Abort();
-                thread = null;
+                BREAKING = true;
+                try
+                {
+                    thread.Abort();
+                    thread = null;
+                }
+                catch { }
             }
 
             void RunScript()
             {
                 MUTAN.Parser.TryParse(codes, out obj);
-                foreach (MUTAN.ReturnCode code in obj.Run())
+                while (!BREAKING)
                 {
-                    Internals.Execute(code.Command, code.Argument,this);
+                    foreach (MUTAN.ReturnCode code in obj.Run())
+                    {
+                        if (code.Command.Trim() == "BREAK")
+                        {
+                            BREAKING = true;
+                            break;                            
+                        }
+                        else
+                        {
+                            Internals.Execute(code.Command, code.Argument, this);
+                        }
+                    }
                 }
+
+                Break();
             }
     }
 }

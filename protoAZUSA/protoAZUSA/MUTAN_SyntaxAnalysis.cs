@@ -334,6 +334,9 @@ namespace AZUSA
                 }
 
                 //如果甚麼都不是, 就單純的認為是一個字串
+                //如果前後有引號包好的話, 就去掉引號
+                //前後有引號包好不一定就是單純的字串,例如 "ABC"+"DEF"
+                //所以放到最後才來檢查, 確保沒有漏掉任何運算
                 //If all things fail, treat as a simple string 
                 //For properly quoted string, quotation marks are removed
                 if (expr.StartsWith("\"") && expr.EndsWith("\""))
