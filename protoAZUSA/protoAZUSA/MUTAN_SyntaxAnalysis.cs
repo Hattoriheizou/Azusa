@@ -98,9 +98,8 @@ namespace AZUSA
 
                 #endregion
 
-                //然後是括號, 先從最深的括號處理起
-                #region Parenthesis accounting
-                //Start with deepest paranthesis if any
+                //然後是括號, 先從最淺和最後出現的括號處理起, 歸遞利用 TryParse, 把最深的括號優先進行運算 (歸遞下降 Recursive Descent)
+                #region Parenthesis accounting                
 
                 //先檢查是否有括號, 沒有的話就跳過這一部分
                 if (expr.Contains('('))
