@@ -52,7 +52,7 @@ namespace AZUSA
                         }
                         else
                         {
-                            Internals.Execute(code.Command, code.Argument, this);
+                            Internals.Execute(code.Command, code.Argument);
                         }
                     }
                 }

@@ -224,14 +224,5 @@ namespace AZUSA
 
         }
 
-        static public void Execute(string cmd, string arg, LoopThread caller)
-        {
-            //check if there is a break loop command
-            
-
-            //else, execute using the usual routine
-            Execute(cmd, arg);
-
-        }
     }
 }

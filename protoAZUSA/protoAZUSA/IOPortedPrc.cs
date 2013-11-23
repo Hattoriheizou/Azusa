@@ -51,6 +51,9 @@ namespace AZUSA
             Engine = new Process();
             Engine.StartInfo = new ProcessStartInfo(enginePath, arg);
 
+            //把進程的工作路徑設成進程本身的路徑, 而不是預設的 AZUSA 的路徑
+            Engine.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(enginePath);
+
             //這三行會讓進程被隱藏起來
             //如果不進行隱藏的話, AZUSA 是不能接管其輸入輸出
             //這大概是 .Net 的限制
@@ -115,7 +118,15 @@ namespace AZUSA
             Pause();
 
             //結束引擎, 並拋棄進程的實體
-            Engine.Kill();
+            if (Engine.MainWindowHandle.ToInt32() !=  0)
+            {
+                Engine.CloseMainWindow();
+            }
+            if (!Engine.HasExited)
+            {
+                Engine.Kill();
+            }
+            
             Engine.Dispose();
             Engine = null;
 
