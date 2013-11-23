@@ -1,4 +1,10 @@
 ﻿
+(中文註解進度: Internals.Execute 和 LineParser)
+
+Issue:
+String cannot contain quotaion marks as content (MUTAN_SyntaxAnalysis.cs Ln87)
+
+
 TEST AND LOOK FOR NEW BUGS
 ADD START UP SCRIPT(?)
 
