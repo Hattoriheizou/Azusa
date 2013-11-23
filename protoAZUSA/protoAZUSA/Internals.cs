@@ -48,9 +48,9 @@ namespace AZUSA
             //等待一秒鐘, 讓各引擎做好初始化和登錄
             System.Threading.Thread.Sleep(1000);
 
-            //一秒後如果 AI, 輸入, 輸出會不齊備的話就對用戶作出提示
-            //如果引擎不齊備的話, 所有 NYAN 以外的指令不會被執行
-            //NYAN 指令的具體內容請看 IOPortedPrc
+            //一秒後如果 AI, 輸入, 輸出不齊備的話就對用戶作出提示
+            //如果引擎不齊備的話, 所有 NYAN 指令組以外的指令不會被執行
+            //NYAN 指令組的具體內容請看 IOPortedPrc
             if (!ProcessManager.CheckCompleteness())
             {
                 notifyIcon.ShowBalloonTip(1000, "AZUSA", "Some engines are missing. AZUSA will not function unless AI and I/O are all registered.", ToolTipIcon.Error);                

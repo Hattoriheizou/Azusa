@@ -202,7 +202,7 @@ namespace AZUSA
                 //然後按回傳碼執行指令
                 foreach (MUTAN.ReturnCode code in returns)
                 {
-                    //首先是與 NYAN 協定有關的指令, 主要是用來讓進程宣佈自己的角色和功能, 並取得可用接口等等的溝通協調用的指令
+                    //首先是 NYAN 指令組的指令, NYAN 指令組主要是用來讓進程宣佈自己的角色和功能, 並取得可用接口等等的溝通協調用的指令
                     //Handle NYAN protocol related commands, leave the rest to AZUSA internals
                     switch (code.Command)
                     {
@@ -212,7 +212,7 @@ namespace AZUSA
                             ProcessManager.InputPid.Add(pid);
                             ProcessManager.OutputPid.Add(pid);
                             break;
-                        //這是用來讓進程取得 AZUSA 的 pid, 進程可以利 pid 檢查 AZUSA 是否存活, 當 AZUSA 意外退出時, 進程可以檢查到並一併退出
+                        //這是用來讓進程取得 AZUSA 的 pid, 進程可以利用 pid 檢查 AZUSA 是否存活, 當 AZUSA 意外退出時, 進程可以檢查到並一併退出
                         case "GetAzusaPid":
                             Engine.StandardInput.WriteLine(Process.GetCurrentProcess().Id);
                             break;
@@ -299,7 +299,7 @@ namespace AZUSA
                             this.RIDs.Add(parsed[0], Convert.ToBoolean(parsed[1]));
 
                             break;
-                        //如果不是上面的 NYAN 協定的指令的話, 就要判斷 AZUSA 是否完整 (AI, 輸入, 輸出)
+                        //如果不是上面的 NYAN 指令組的指令的話, 就要判斷 AZUSA 是否完整 (AI, 輸入, 輸出)
                         //如果完整就把指令傳達到內部執行
                         //否則的話為避免出錯, AZUSA 會無視掉
                         default:
