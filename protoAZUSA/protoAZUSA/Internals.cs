@@ -17,7 +17,10 @@ namespace AZUSA
         {
             //從 DATA 載入所有已儲存的變量
             //Load all the variables
-            Variables.Load(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA");
+            if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA"))
+            {
+                Variables.Load(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA");
+            }
 
             //創建提示圖標
             //Set up notify icon

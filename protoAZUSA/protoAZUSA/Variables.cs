@@ -46,34 +46,38 @@ namespace AZUSA
             string ID;
             string val;
 
-            //update old values in file
-            foreach (string line in File.ReadAllLines(filePath))
+            if (File.Exists(filePath))
             {
-                parsed = line.Split('=');
 
-                //see if the line is defining a variable
-                if (parsed.Length == 2)
+                //update old values in file
+                foreach (string line in File.ReadAllLines(filePath))
                 {
-                    ID = parsed[0];
-                    val = line.Replace(ID + "=", "");
-                    ID = ID.Trim();
-                    //see if the variable already exists
-                    if (storage.ContainsKey(ID))
+                    parsed = line.Split('=');
+
+                    //see if the line is defining a variable
+                    if (parsed.Length == 2)
                     {
-                        newConfig.Add(ID + "=" + storage[ID]);
+                        ID = parsed[0];
+                        val = line.Replace(ID + "=", "");
+                        ID = ID.Trim();
+                        //see if the variable already exists
+                        if (storage.ContainsKey(ID))
+                        {
+                            newConfig.Add(ID + "=" + storage[ID]);
+                        }
+                        else //keep it
+                        {
+                            newConfig.Add(line);
+                        }
+                        updated.Add(ID);
                     }
-                    else //keep it
+                    else
                     {
                         newConfig.Add(line);
                     }
-                    updated.Add(ID);
                 }
-                else
-                {
-                    newConfig.Add(line);
-                }
-            }
 
+            }
             //add new entries that are not in the file
             foreach (KeyValuePair<string, string> pair in storage)
             {
@@ -84,7 +88,7 @@ namespace AZUSA
             }
 
 
-            File.WriteAllLines(filePath, newConfig.ToArray());
+            File.WriteAllLines(filePath, newConfig.ToArray(),Encoding.UTF8);
 
         }
 
