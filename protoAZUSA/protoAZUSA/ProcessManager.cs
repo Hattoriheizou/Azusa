@@ -47,7 +47,10 @@ namespace AZUSA
         }
 
         //取消進程的登錄
-        //此函數只從 CurrentProcesses 中移除指定的進程        
+        //此函數只從 CurrentProcesses 中移除指定的進程, 不實際結束進程
+        //在 IOPortedPrc 的 End() 方法時會被調用到
+        //這樣是因為在 IOPortedPrc 對進程退出做更好的處理
+        //當 IOPortedPrc 判斷已成功退出, 再叫 ProcessManager 取消登錄
         static public void RemoveProcess(IOPortedPrc prc)
         {
             CurrentProcesses.Remove(prc);
@@ -55,7 +58,7 @@ namespace AZUSA
         }
 
 
-
+        //通知所有進程退出
         static public void KillAll()
         {
             List<IOPortedPrc> ListCopy = new List<IOPortedPrc>(CurrentProcesses);
@@ -72,12 +75,13 @@ namespace AZUSA
         }
 
 
-
+        //返回現在執行中的所有進程
         static public List<IOPortedPrc> GetCurrentProcesses()
         {
             return CurrentProcesses;
         }
 
+        //刷新登錄, 清除掉已退出的進程
         static public void Refresh()
         {
             foreach (IOPortedPrc prc in CurrentProcesses)

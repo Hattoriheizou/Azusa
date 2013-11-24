@@ -28,7 +28,7 @@ namespace AZUSA
             ReturnCode[] Run();
         }
 
-        //empty object for an empty code
+        //empty object for an empty line, or comment
         class empty : IRunnable
         {
             public ReturnCode[] Run()
