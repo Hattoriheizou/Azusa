@@ -404,65 +404,102 @@ namespace AZUSA
         }
 
     }
-    
+
+    //MUTAN 多行解析器
     //Used to parse a program
     static public class Parser
     {
+        //嘗試解析, 成功回傳 true, 並作成執行物件輸出到 obj
+        //失敗回傳 false, obj 返回 null
         static public bool TryParse(string[] program, out IRunnable obj,string part="")
         {
+            //先把 program 複製下來
             string[] lines=program;
 
+            //如果有指定特定區塊名的話, 先提取指定的部分
             if (part != "")
             {
+                //暫存區塊的內容
                 List<string> tmp = new List<string>();
+
+                //狀態變量, 表示現在是否在指定區塊中
                 bool inpart = false;
+
+                //括號記數, 開括號 +1 , 閉括號 -1
                 int bracCount = 0;
+
+                //逐行解析
                 foreach (string ln in program)
                 {
+                    //先對 inpart 為 true 的情況進行處理
+
+                    //如果現在是在指定區塊之中, 而且是區塊開首
                     if (inpart && ln.EndsWith("{"))
                     {
+                        //記數 +1
                         bracCount++;
+
+                        //加進區塊內容
                         tmp.Add(ln);
+
                         continue;
                     }
+
+                    //如果現在是在指定區塊之中, 而且是區塊結束
                     if (inpart && ln.Trim() == "}")
                     {
+                        //記數 +1
                         bracCount--;
+
+                        //如果記數為零, 表示這是指區塊的結束, 跳出循環
                         if (bracCount == 0)
                         {
                             break;
                         }
+                        //否則就加進內容
                         else
                         {
                             tmp.Add(ln);
                         }
                     }
+
+                    //如果現在是在指定區塊之中, 但不是區塊開首或結束
+                    if (inpart)
+                    {
+                        //加進內容
+                        tmp.Add(ln);
+
+                        continue;
+                    }
+
+                    //如果是指定區塊的開頭
                     if (ln.Trim().TrimStart('.').TrimEnd('{').Trim() == part)
                     {
+                        //記數 +1
                         bracCount++;
+
+                        //inpart 設成 true, 表示現在處於指定區塊內
                         inpart = true;
+
                         continue;
                     }
                     
-                    if (inpart)
-                    {
-                        tmp.Add(ln);
-                        continue;
-                    }
+                    
                 }
 
+                //重新指定 lines, 改成區塊內容
                 lines = tmp.ToArray();
             }
 
             
-
+            //如果 lines 是合法的區塊就創建並返回 true 和相應的物件
             if (IsBlock(lines))
             {
                 obj=new block(lines);
                 return true;
             }           
 
-
+            //否則返回 false 和 null
             obj = null;
             return false;
         }
