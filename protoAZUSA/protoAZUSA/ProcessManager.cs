@@ -54,7 +54,7 @@ namespace AZUSA
         static public void RemoveProcess(IOPortedPrc prc)
         {
             CurrentProcesses.Remove(prc);
-            prc = null;
+            
             return;
         }
 
