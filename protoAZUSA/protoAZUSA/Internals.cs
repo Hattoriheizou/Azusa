@@ -86,6 +86,7 @@ namespace AZUSA
 
             //拋棄圖標
             notifyIcon.Dispose();
+            notifyIcon = null;
 
             //處理完畢, 可以通知程序退出
             Application.Exit();
@@ -106,6 +107,7 @@ namespace AZUSA
 
             //拋棄圖標
             notifyIcon.Dispose();
+            notifyIcon = null;
 
             //處理完畢, 可以通知程序重啟
             Application.Restart();

@@ -25,6 +25,8 @@ namespace AZUSA
                 BREAKING = true;
                 thread.Abort();
                 thread = null;
+                codes = null;
+                obj = null;
             }
 
             ~LoopThread()

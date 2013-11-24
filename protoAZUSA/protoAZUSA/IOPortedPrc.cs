@@ -150,6 +150,14 @@ namespace AZUSA
 
             //然後從 ProcessManager 的進程名單中除名
             ProcessManager.RemoveProcess(this);
+
+            //釋放變量佔用的資源
+            Name = null;
+            Ports.Clear();
+            Ports = null;
+            RIDs.Clear();
+            RIDs = null;
+            
             
         }
 
