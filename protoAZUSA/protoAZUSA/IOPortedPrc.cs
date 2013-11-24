@@ -130,10 +130,7 @@ namespace AZUSA
             Engine.Dispose();
             Engine = null;
 
-            //退出順利後從 ProcessManager 的進程名單中除名
-            ProcessManager.RemoveProcess(this);
-
-            //然後檢查引擎類型, 再從 ProcessManager 相應的名單中除名
+            //退出順利後檢查引擎類型, 再從 ProcessManager 相應的名單中除名
             if (Type == ProcessType.AI)
             {
                 ProcessManager.AIPid.Remove(pid);
@@ -147,6 +144,8 @@ namespace AZUSA
                 ProcessManager.OutputPid.Remove(pid);
             }
 
+            //然後從 ProcessManager 的進程名單中除名
+            ProcessManager.RemoveProcess(this);
             
         }
 
@@ -154,10 +153,7 @@ namespace AZUSA
         void Engine_Exited(object sender, EventArgs e)
         {
             //首先暫停處理引擎的輸出
-            Pause();
-
-            //從 ProcessManager 的進程名單中除名
-            ProcessManager.RemoveProcess(this);
+            Pause();            
 
             //然後檢查引擎類型, 再從 ProcessManager 相應的名單中除名
             if (Type == ProcessType.AI)
@@ -172,6 +168,9 @@ namespace AZUSA
             {
                 ProcessManager.OutputPid.Remove(pid);
             }
+
+            //從 ProcessManager 的進程名單中除名
+            ProcessManager.RemoveProcess(this);
         }
 
         //處理引擎的輸出

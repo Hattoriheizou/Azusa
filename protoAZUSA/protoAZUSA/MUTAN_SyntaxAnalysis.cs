@@ -368,8 +368,11 @@ namespace AZUSA
     {
         //嘗試解析, 成功回傳 true, 並作成執行物件輸出到 obj
         //失敗回傳 false, obj 返回 null
-        static public bool TryParse(string line, out IRunnable obj)
+        static public bool TryParse(string ln, out IRunnable obj)
         {
+            //先把多餘的空白去掉
+            string line = ln.Trim();
+
             //如果是空行就回傳一個空物件
             if (line.Trim() == "")
             {
@@ -434,7 +437,7 @@ namespace AZUSA
                             tmp.Add(ln);
                         }
                     }
-                    if (ln.Trim() == "." + part + "{")
+                    if (ln.Trim().TrimStart('.').TrimEnd('{').Trim() == part)
                     {
                         bracCount++;
                         inpart = true;
@@ -530,7 +533,8 @@ namespace AZUSA
                     }
                     else if (IsNamedBlock(content.ToArray()))
                     {
-                        objects.Add(new namedblock(content.ToArray()));
+                        //命名區塊在執行時是跳過的
+                        //只有調用腳本檔直接指明時, 才會取得其內容並執行
                     }
 
                     //清空暫存內容

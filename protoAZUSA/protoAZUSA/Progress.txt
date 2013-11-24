@@ -1,5 +1,5 @@
 ﻿
-(中文註解進度: MUTAN object, defs)
+(中文註解進度: MUTAN object, Syntax:Parser.TryParse)
 
 Issue:
 String cannot contain quotaion marks as content (MUTAN_SyntaxAnalysis.cs Ln87)

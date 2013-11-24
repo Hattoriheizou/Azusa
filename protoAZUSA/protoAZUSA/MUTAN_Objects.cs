@@ -250,7 +250,7 @@ namespace AZUSA
 
             public namedblock(string[] lines)
             {
-                ID = lines[0].Trim().TrimStart('.').TrimEnd('{');
+                ID = lines[0].Trim().TrimStart('.').TrimEnd('{').Trim();
                 string[] content = new string[lines.Length - 2];
                 for (int i = 1; i < lines.Length - 1; i++)
                 {
