@@ -2,6 +2,7 @@
 (中文註解進度: LoopThread, ThreadManager, Variables)
 
 Issue:
+How should the WAITFORRESP command in old AZUSA be implement?
 String cannot contain quotaion marks as content (MUTAN_SyntaxAnalysis.cs Ln87)
 Bug tracking for script is still very primitive.
 Games and other window application exit with AZUSA, which is not desirable by users. Hence user applications should NOT be started through AZUSA but through a routine or sth.
