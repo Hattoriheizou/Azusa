@@ -127,50 +127,42 @@ namespace AZUSA
         //執行指令
         static public void Execute(string cmd, string arg)
         {
-            bool routed = false;
-            //Check if the RID needs to be routed to engines
-            foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
+            //如果是空白指令就直接無視掉就行
+            if (cmd.Trim() == "")
             {
-                if (prc.RIDs.ContainsKey(cmd))
-                {
-                    routed = true;
-                    if (prc.RIDs[cmd])
-                    {
-                        prc.Engine.StandardInput.WriteLine(arg);
-                    }
-                    else
-                    {
-                        prc.Engine.StandardInput.WriteLine(cmd + "(" + arg + ")");
-                    }                    
-                }
+                return;
             }
-
-            //No need to continue executing the command because it has been routed already
-            if (routed) { return; }            
 
             //Internal commands
             switch (cmd)
-            {
-                case "":
-                    //do nothing
-                    break;
+            {   
+                // VAR({id}={expr}) 對變數進行寫入
                 case "VAR":
                     string ID = arg.Split('=')[0];
                     string val = arg.Replace(ID + "=", "").Trim();
                     Variables.Write(ID, val);
                     break;
+                // LOOP({line}) 創建單行循環線程
                 case "LOOP":
                     string[] content = new string[] { arg };
                     ThreadManager.AddLoop(content);
                     break;
+                // MLOOP({block}) 創建多行循環線程
                 case "MLOOP":
                     ThreadManager.AddLoop(arg.Split('\n'));
                     break;
+                // SCRIPT({SID(.part)}) 執行腳本檔
                 case "SCRIPT":
+                    //創建執行物件
                     MUTAN.IRunnable obj;
                     
+                    //分割參數, 以便取得部分名, 例如 TEST.part1
                     string[] scr = arg.Split('.');
+
+                    //用來暫存腳本內容的陣列
                     string[] program;
+
+                    //首先嘗試讀入腳本內容
                     try
                     {
                         program = File.ReadAllLines(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\Scripts\" + scr[0]);
@@ -181,15 +173,19 @@ namespace AZUSA
                         return;
                     }
 
+                    //然後如果 scr 有兩個元素的話, 表示帶有部分名, 只需解析要求的部分
                     if (scr.Length == 2)
                     {
                         MUTAN.Parser.TryParse(program, out obj, scr[1].Trim());                        
                     }
+                    //否則就整個解析
                     else
                     {
                         MUTAN.Parser.TryParse(program, out obj);
                     }
 
+                    //解析結果不為空的話就執行
+                    //否則就報錯
                     if (obj != null)
                     {
                         foreach (MUTAN.ReturnCode code in obj.Run())
@@ -202,23 +198,60 @@ namespace AZUSA
                         ERROR("An error occured while running script named " + scr[0]+". Please make sure there is no syntax error.");
                     }
                     break;
+                // WAIT({int}) 暫停線程
                 case "WAIT":
                     System.Threading.Thread.Sleep(Convert.ToInt32(arg));
                     break;
+                // ERR({expr}) 發送錯誤信息
                 case "ERR":
                     ERROR(arg);
                     break;
+                // MSG({expr}) 發送信息
                 case "MSG":
                     MESSAGE(arg);
                     break;
+                // EXIT() 退出程序
                 case "EXIT":
                     EXIT();
                     break;
+                // RESTART() 重啟程序
                 case "RESTART":
                     RESTART();
                     break;
                 default:
-                    ProcessManager.AddProcess(cmd, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\Routines\" + cmd, arg);
+                    //如果不是系統指令, 先檢查是否有引擎登記接管了這個指令
+                    // routed 記錄指令是否已被接管
+                    bool routed = false;
+
+                    //檢查每一個現在運行中的進程
+                    foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
+                    {
+                        //如果進程有接管這個指令, 就把指令內容傳過去
+                        if (prc.RIDs.ContainsKey(cmd))
+                        {
+                            //設 routed 為 true
+                            routed = true;
+
+                            //根據 RIDs 的值,決定只傳參數還是指令跟參數整個傳過去
+                            //RIDs 的值如果是 true 的話就表示只傳參數
+                            if (prc.RIDs[cmd])
+                            {
+                                prc.Engine.StandardInput.WriteLine(arg);
+                            }
+                            else
+                            {
+                                prc.Engine.StandardInput.WriteLine(cmd + "(" + arg + ")");
+                            }
+                        }
+                    }
+                    //所有進程都檢查完畢
+                    //如果 routed 為 true, 那麼已經有進程接管了, AZUSA 就可以不用繼續執行
+                    //No need to continue executing the command because it has been routed already
+                    if (!routed)
+                    {
+                        //否則的話就當成函式呼叫
+                        ProcessManager.AddProcess(cmd, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\Routines\" + cmd, arg);
+                    }
                     break;
             }
 

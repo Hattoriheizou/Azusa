@@ -7,12 +7,8 @@ namespace AZUSA
 {
     partial class MUTAN
     {
-        //The Runnable interface is a representation of "line" in the definition of MUTAN
-        //The only important feature is that it can be "run" since it is a valid syntax
-        //The detailed implementation of how to "run" a line is defered to more concrete classes
-        //Implementations here are just for testing purposes, please do NOT use them directly
-        //They should be rewritten when combining to other parts of AZUSA.
-
+             
+        //used to store the result of running a command
         public struct ReturnCode
         {
             public string Command, Argument;
@@ -24,6 +20,9 @@ namespace AZUSA
             }
         }
 
+        //The Runnable interface is a representation of "line" in the definition of MUTAN
+        //The only important feature is that it can be "run" since it is a valid syntax
+        //The detailed implementation of how to "run" a line is deferred to the object  
         public interface IRunnable
         {
             ReturnCode[] Run();

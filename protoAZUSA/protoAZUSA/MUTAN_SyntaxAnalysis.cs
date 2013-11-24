@@ -361,21 +361,27 @@ namespace AZUSA
 
         }
     }
-
+    
+    //MUTAN 單行指令的解析器
     //Used to determine type of syntax of a single line
     static public class LineParser
     {
+        //嘗試解析, 成功回傳 true, 並作成執行物件輸出到 obj
+        //失敗回傳 false, obj 返回 null
         static public bool TryParse(string line, out IRunnable obj)
         {
+            //如果是空行就回傳一個空物件
             if (line.Trim() == "")
             {
                 obj = new empty();
                 return true;
             }
 
+            //從上層結構開始檢查, 這樣就保証層級關係的正確性
             //Parsing should begin from large scale structure to small scale structure
             //in order to ensure correct priority
-
+            
+            //單行指令只有兩種 loop 或 stmts
             if (IsLoop(line))
             {
                 obj = new loop(line);
@@ -395,74 +401,7 @@ namespace AZUSA
         }
 
     }
-
-    //Used to parse a verified block
-    static IRunnable[] ParseBlock(string[] lines)
-    {
-        List<IRunnable> objects=new List<IRunnable>();
-        int bracketcount = 0;
-        bool inblock = false;
-        List<string> content = new List<string>();
-
-        foreach (string line in lines)
-        {
-            //see if it is beginning of a block
-            if (line.Trim().EndsWith("{"))
-            {
-                bracketcount++;
-                inblock = true;
-                content.Add(line.Trim());
-                continue;
-            }
-
-            if (line.Trim() == "}")
-            {
-                bracketcount--;
-                content.Add("}");
-
-                if (bracketcount == 0)
-                {
-                    inblock = false;
-                    //check the block
-                    if(IsLoopBlock(content.ToArray())){
-                        objects.Add(new loopblock(content.ToArray()));
-                    }
-                    else if (IsCondBlock(content.ToArray()))
-                    {
-                        objects.Add(new condblock(content.ToArray()));
-                    }
-                    else if (IsNamedBlock(content.ToArray()))
-                    {
-                        objects.Add(new namedblock(content.ToArray()));
-                    }                    
-
-                    content.Clear();
-                }
-                continue;
-            }
-
-            if (inblock)
-            {
-                content.Add(line.Trim());
-                continue;
-            }
-
-            if (IsLine(line.Trim()))
-            {
-                if (IsLoop(line.Trim()))
-                {
-                    objects.Add(new loop(line.Trim()));
-                }
-                else
-                {
-                    objects.Add(new stmts(line.Trim()));
-                }
-            }
-        }
-
-        return objects.ToArray();
-    }
-
+    
     //Used to parse a program
     static public class Parser
     {
@@ -525,6 +464,104 @@ namespace AZUSA
             return false;
         }
 
+    }
+
+    //輔助用的函數
+    //用於解析 block (假定了輸入已經過檢查是合法的 MUTAN block)
+    //Used to parse a verified block
+    static IRunnable[] ParseBlock(string[] lines)
+    {
+        //這是用來儲存解析出來的執行物件的
+        List<IRunnable> objects = new List<IRunnable>();
+
+        //這是用來記錄括號( { } )數的, 開括號 +1 , 閉括號 -1
+        //用來提取區塊內容
+        int bracketcount = 0;
+
+        //狀態變量, 表示現在是否正處於區塊之中
+        bool inblock = false;
+
+        //暫存區塊的內容
+        List<string> content = new List<string>();
+
+        //逐行閱讀
+        foreach (string line in lines)
+        {
+            //如果是帶開括號, 表示是區塊的開首
+            //see if it is beginning of a block
+            if (line.Trim().EndsWith("{"))
+            {
+                // 記數 +1
+                bracketcount++;
+
+                // inblock 設成 true, 表示現在正處於區塊之中
+                inblock = true;
+
+                //把這一行加進區塊內容
+                content.Add(line.Trim());
+                continue;
+            }
+
+            //如果是閉括號, 表示是區塊的結尾
+            if (line.Trim() == "}")
+            {
+                // 記數 -1
+                bracketcount--;
+
+                // 把這一行加進區塊內容
+                content.Add("}");
+
+                // 如果記數歸零了, 表示當前區塊已結束, 開始解析區塊
+                // 否則的話, 表示只是子區塊結束, 整個區塊還有其他內容
+                if (bracketcount == 0)
+                {
+                    //區塊已結束, 設 inblock 為 false
+                    inblock = false;
+
+                    //解析區塊內容, 把所得結果加進執行物件裡
+                    //check the block
+                    if (IsLoopBlock(content.ToArray()))
+                    {
+                        objects.Add(new loopblock(content.ToArray()));
+                    }
+                    else if (IsCondBlock(content.ToArray()))
+                    {
+                        objects.Add(new condblock(content.ToArray()));
+                    }
+                    else if (IsNamedBlock(content.ToArray()))
+                    {
+                        objects.Add(new namedblock(content.ToArray()));
+                    }
+
+                    //清空暫存內容
+                    content.Clear();
+                }
+                continue;
+            }
+
+            //如果現在正處於區塊裡, 而又沒有括號, 就直接把這行加進區塊內容的暫存
+            if (inblock)
+            {
+                content.Add(line.Trim());
+                continue;
+            }
+
+            //否則的話, 就是區塊外的單行
+            if (IsLine(line.Trim()))
+            {
+                if (IsLoop(line.Trim()))
+                {
+                    objects.Add(new loop(line.Trim()));
+                }
+                else
+                {
+                    objects.Add(new stmts(line.Trim()));
+                }
+            }
+        }
+
+        //解析完畢
+        return objects.ToArray();
     }
 
 
