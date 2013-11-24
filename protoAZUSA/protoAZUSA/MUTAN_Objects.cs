@@ -58,6 +58,12 @@ namespace AZUSA
                 ID = ID.Trim();
             }
 
+            ~decla()
+            {
+                ID = null;
+                expr = null;
+            }
+
 
             public ReturnCode[] Run()
             {
@@ -94,6 +100,12 @@ namespace AZUSA
                 RID = line.Split('(')[0];
                 arg = line.Substring(RID.Length + 1, line.Length - RID.Length - 2);
                 RID = RID.Trim();
+            }
+
+            ~exec()
+            {
+                RID = null;
+                arg = null;
             }
 
             public ReturnCode[] Run()
@@ -153,6 +165,11 @@ namespace AZUSA
 
             }
 
+            ~multi()
+            {
+                basics = null;
+            }
+
             public ReturnCode[] Run()
             {
                 //暫存執行結果
@@ -187,6 +204,12 @@ namespace AZUSA
                 //提取條件和 multi
                 condition = line.Split('?')[0];
                 content = new multi(line.Replace(condition + "?", ""));
+            }
+
+            ~cond()
+            {
+                condition = null;
+                content = null;
             }
 
             public ReturnCode[] Run()
@@ -254,6 +277,11 @@ namespace AZUSA
 
             }
 
+            ~stmts()
+            {
+                stmt = null;
+            }
+
             public ReturnCode[] Run()
             {
                 //暫存執行結果
@@ -286,6 +314,11 @@ namespace AZUSA
             {
                 //把 @ 去掉就是內容的部分了
                 content = line.TrimStart('@');
+            }
+
+            ~loop()
+            {
+                content = null;
             }
 
             public ReturnCode[] Run()
@@ -359,6 +392,12 @@ namespace AZUSA
                 objects = ParseBlock(content);
 
                 //the last line contains only a '}' and can be ignored
+            }
+
+            ~condblock()
+            {
+                condition = null;
+                objects = null;
             }
 
             public ReturnCode[] Run()
@@ -435,6 +474,11 @@ namespace AZUSA
                 //the last line contains only a '}' and can be ignored
             }
 
+            ~loopblock()
+            {
+                content = null;
+            }
+
             public ReturnCode[] Run()
             {
                 //暫存內容
@@ -460,6 +504,11 @@ namespace AZUSA
             {
                 //把語句解析成物件
                 objects = ParseBlock(lines);
+            }
+
+            ~block()
+            {
+                objects = null;
             }
 
             public ReturnCode[] Run()
