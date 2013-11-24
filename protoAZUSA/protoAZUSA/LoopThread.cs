@@ -29,6 +29,9 @@ namespace AZUSA
 
             ~LoopThread()
             {
+                codes = null;
+                obj = null;
+
                 BREAKING = true;
                 try
                 {

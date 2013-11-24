@@ -67,12 +67,9 @@ namespace AZUSA
             foreach (IOPortedPrc prc in ListCopy)
             {
                 prc.End();
-                
             }
 
             Refresh();
-
-
         }
 
 

@@ -78,7 +78,6 @@ namespace AZUSA
 
         }
 
-
         //啟動進程
         public void Start()
         {
@@ -117,7 +116,7 @@ namespace AZUSA
             //首先暫停處理引擎的輸出
             Pause();
 
-            //結束引擎, 並拋棄進程的實體
+            //結束引擎
             if (Engine.MainWindowHandle.ToInt32() !=  0)
             {
                 Engine.CloseMainWindow();
@@ -126,7 +125,12 @@ namespace AZUSA
             {
                 Engine.Kill();
             }
-            
+
+            //移除事件監聽
+            Engine.OutputDataReceived -= Engine_OutputDataReceived;
+            Engine.Exited -=Engine_Exited;
+
+            //拋棄進程的實體
             Engine.Dispose();
             Engine = null;
 

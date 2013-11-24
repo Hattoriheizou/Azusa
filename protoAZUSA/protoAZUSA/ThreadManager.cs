@@ -33,7 +33,7 @@ namespace AZUSA
             foreach (LoopThread loop in ListCopy)
             {
                 loop.Break();
-                CurrentLoops.Remove(loop);
+                RemoveLoop(loop);
             }
         }
 
