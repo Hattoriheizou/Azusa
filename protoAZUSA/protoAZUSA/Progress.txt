@@ -2,6 +2,7 @@
 (中文註解進度: LoopThread, ThreadManager, Variables)
 
 Issue:
+Add decontructors to MUTAN objects, serious mem leaks
 How should the WAITFORRESP command in old AZUSA be implement?
 String cannot contain quotaion marks as content (MUTAN_SyntaxAnalysis.cs Ln87)
 Bug tracking for script is still very primitive.
