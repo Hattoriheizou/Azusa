@@ -54,7 +54,15 @@ namespace AZUSA
 
             foreach (LoopThread loop in ListCopy)
             {
-                if (!loop.IsAlive())
+                try
+                {
+                    if (!loop.IsAlive())
+                    {
+                        CurrentLoops.Remove(loop);
+                    }
+
+                }
+                catch
                 {
                     CurrentLoops.Remove(loop);
                 }

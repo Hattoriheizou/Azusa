@@ -135,29 +135,33 @@ namespace AZUSA
         //結束進程
         public void End()
         {
+            
             //首先暫停處理引擎的輸出
             Pause();
 
-            //結束引擎
-            if (Engine.MainWindowHandle.ToInt32() !=  0)
+            if (Engine != null)
             {
-                Engine.CloseMainWindow();
+                //移除事件監聽
+                Engine.OutputDataReceived -= Engine_OutputDataReceived;
+                Engine.Exited -= Engine_Exited;
+
+                //結束引擎
+                if (Engine.MainWindowHandle.ToInt32() != 0)
+                {
+                    Engine.CloseMainWindow();
+                }
+                if (!Engine.HasExited)
+                {
+                    Engine.Kill();
+                }
+
+                //等待進程順利退出
+                Engine.WaitForExit();
+
+                //拋棄進程的實體
+                Engine.Dispose();
+                Engine = null;
             }
-            if (!Engine.HasExited)
-            {
-                Engine.Kill();
-            }
-
-            //等待進程順利退出
-            Engine.WaitForExit();
-
-            //移除事件監聽
-            Engine.OutputDataReceived -= Engine_OutputDataReceived;
-            Engine.Exited -=Engine_Exited;
-
-            //拋棄進程的實體
-            Engine.Dispose();
-            Engine = null;
 
             //退出順利後檢查引擎類型, 再從 ProcessManager 相應的名單中除名
             if (Type == ProcessType.AI)
@@ -175,10 +179,16 @@ namespace AZUSA
 
             //釋放變量佔用的資源
             Name = null;
-            Ports.Clear();
-            Ports = null;
-            RIDs.Clear();
-            RIDs = null;
+            if (Ports != null)
+            {
+                Ports.Clear();
+                Ports = null;
+            }
+            if (RIDs != null)
+            {
+                RIDs.Clear();
+                RIDs = null;
+            }
 
             //然後從 ProcessManager 的進程名單中除名
             ProcessManager.RemoveProcess(this);
@@ -215,10 +225,16 @@ namespace AZUSA
 
             //釋放變量佔用的資源
             Name = null;
-            Ports.Clear();
-            Ports = null;
-            RIDs.Clear();
-            RIDs = null;
+            if (Ports != null)
+            {
+                Ports.Clear();
+                Ports = null;
+            }
+            if (RIDs != null)
+            {
+                RIDs.Clear();
+                RIDs = null;
+            }
 
             //從 ProcessManager 的進程名單中除名
             ProcessManager.RemoveProcess(this);
