@@ -226,26 +226,32 @@ namespace AZUSA
                     // routed 記錄指令是否已被接管
                     bool routed = false;
 
-                    //檢查每一個現在運行中的進程
-                    foreach (IOPortedPrc prc in ProcessManager.GetCurrentProcesses())
-                    {
-                        //如果進程有接管這個指令, 就把指令內容傳過去
-                        if (prc.RIDs.ContainsKey(cmd))
-                        {
-                            //設 routed 為 true
-                            routed = true;
+                    List<IOPortedPrc> ListCopy = new List<IOPortedPrc>(ProcessManager.GetCurrentProcesses());
 
-                            //根據 RIDs 的值,決定只傳參數還是指令跟參數整個傳過去
-                            //RIDs 的值如果是 true 的話就表示只傳參數
-                            if (prc.RIDs[cmd])
+                    //檢查每一個現在運行中的進程
+                    foreach (IOPortedPrc prc in ListCopy)
+                    {
+                        try
+                        {
+                            //如果進程有接管這個指令, 就把指令內容傳過去
+                            if (prc.RIDs.ContainsKey(cmd))
                             {
-                                prc.Input.WriteLine(arg);
-                            }
-                            else
-                            {
-                                prc.Input.WriteLine(cmd + "(" + arg + ")");
+                                //設 routed 為 true
+                                routed = true;
+
+                                //根據 RIDs 的值,決定只傳參數還是指令跟參數整個傳過去
+                                //RIDs 的值如果是 true 的話就表示只傳參數
+                                if (prc.RIDs[cmd])
+                                {
+                                    prc.Input.WriteLine(arg);
+                                }
+                                else
+                                {
+                                    prc.Input.WriteLine(cmd + "(" + arg + ")");
+                                }
                             }
                         }
+                        catch { }
                     }
                     //所有進程都檢查完畢
                     //如果 routed 為 true, 那麼已經有進程接管了, AZUSA 就可以不用繼續執行

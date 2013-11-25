@@ -82,8 +82,15 @@ namespace AZUSA
 
         //返回進程是否已退出
         public bool HasExited()
-        {            
-            return Engine.HasExited;
+        {
+            try
+            {
+                return Engine.HasExited;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         //返回進程的輸入端

@@ -85,7 +85,9 @@ namespace AZUSA
         //刷新登錄, 清除掉已退出的進程
         static public void Refresh()
         {
-            foreach (IOPortedPrc prc in CurrentProcesses)
+            List<IOPortedPrc> ListCopy = new List<IOPortedPrc>(CurrentProcesses);
+
+            foreach (IOPortedPrc prc in ListCopy)
             {
                 if (prc.HasExited())
                 {
