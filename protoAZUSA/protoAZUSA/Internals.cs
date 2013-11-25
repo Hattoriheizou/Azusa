@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace AZUSA
 {
@@ -212,11 +213,13 @@ namespace AZUSA
                     break;
                 // EXIT() 退出程序
                 case "EXIT":
-                    EXIT();
+                    //創建一個負責退出的線程
+                    new Thread(new ThreadStart(EXIT)).Start();
                     break;
                 // RESTART() 重啟程序
                 case "RESTART":
-                    RESTART();
+                    //創建一個負責重啟的線程
+                    new Thread(new ThreadStart(RESTART)).Start();
                     break;
                 default:
                     //如果不是系統指令, 先檢查是否有引擎登記接管了這個指令

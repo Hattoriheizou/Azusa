@@ -497,7 +497,7 @@ namespace AZUSA
             {
                 obj=new block(lines);
                 return true;
-            }           
+            }
 
             //否則返回 false 和 null
             obj = null;

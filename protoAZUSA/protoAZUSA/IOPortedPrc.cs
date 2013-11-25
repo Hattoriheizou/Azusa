@@ -50,7 +50,8 @@ namespace AZUSA
             //這裡是創建進程實體的部分
             //specifies the way the recognizer is run
             Engine = new Process();
-            Engine.StartInfo = new ProcessStartInfo(enginePath, arg);
+            Engine.StartInfo.FileName = enginePath;
+            Engine.StartInfo.Arguments = arg;
 
             //把進程的工作路徑設成進程本身的路徑, 而不是預設的 AZUSA 的路徑
             Engine.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(enginePath);
@@ -135,10 +136,13 @@ namespace AZUSA
             {
                 Engine.CloseMainWindow();
             }
-            if (!Engine.HasExited)
+            while (!Engine.HasExited)
             {
                 Engine.Kill();
             }
+
+            //等待進程順利退出
+            Engine.WaitForExit();
 
             //移除事件監聽
             Engine.OutputDataReceived -= Engine_OutputDataReceived;
@@ -178,7 +182,15 @@ namespace AZUSA
         void Engine_Exited(object sender, EventArgs e)
         {
             //首先暫停處理引擎的輸出
-            Pause();            
+            Pause();
+
+            //移除事件監聽
+            Engine.OutputDataReceived -= Engine_OutputDataReceived;
+            Engine.Exited -= Engine_Exited;
+
+            //拋棄進程的實體
+            Engine.Dispose();
+            Engine = null;
 
             //然後檢查引擎類型, 再從 ProcessManager 相應的名單中除名
             if (Type == ProcessType.AI)
@@ -193,6 +205,13 @@ namespace AZUSA
             {
                 ProcessManager.OutputPid.Remove(pid);
             }
+
+            //釋放變量佔用的資源
+            Name = null;
+            Ports.Clear();
+            Ports = null;
+            RIDs.Clear();
+            RIDs = null;
 
             //從 ProcessManager 的進程名單中除名
             ProcessManager.RemoveProcess(this);

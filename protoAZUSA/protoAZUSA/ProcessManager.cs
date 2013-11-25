@@ -54,6 +54,8 @@ namespace AZUSA
         static public void RemoveProcess(IOPortedPrc prc)
         {
             CurrentProcesses.Remove(prc);
+
+            Refresh();
             
             return;
         }
@@ -62,6 +64,7 @@ namespace AZUSA
         //通知所有進程退出
         static public void KillAll()
         {
+            string name = System.Threading.Thread.CurrentThread.Name;
             List<IOPortedPrc> ListCopy = new List<IOPortedPrc>(CurrentProcesses);
 
             foreach (IOPortedPrc prc in ListCopy)
