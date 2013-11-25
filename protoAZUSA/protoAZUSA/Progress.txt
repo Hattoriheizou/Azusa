@@ -1,16 +1,17 @@
 ﻿
-(中文註解進度: LoopThread, ThreadManager, Variables)
+(中文註解完成)
 
 Issue:
-Add decontructors to MUTAN objects, serious mem leaks
+Combine Definition with the creation of object to avoid double checking
 How should the WAITFORRESP command in old AZUSA be implement?
 String cannot contain quotaion marks as content (MUTAN_SyntaxAnalysis.cs Ln87)
 Bug tracking for script is still very primitive.
 Games and other window application exit with AZUSA, which is not desirable by users. Hence user applications should NOT be started through AZUSA but through a routine or sth.
 
+FAILED====================
+Add decontructors to MUTAN objects, serious mem leaks
 
-TEST AND LOOK FOR NEW BUGS
-ADD START UP SCRIPT(?)
+adding decontructors proved to be unuseful
 
 RESOLVED==================
 Issue:

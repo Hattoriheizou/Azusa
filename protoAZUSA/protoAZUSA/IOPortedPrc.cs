@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
 
 namespace AZUSA
 {
@@ -21,7 +22,7 @@ namespace AZUSA
         public int pid;
 
         //進程的實體
-        public Process Engine;
+        Process Engine;
 
         //進程的類別
         public ProcessType Type;
@@ -76,6 +77,19 @@ namespace AZUSA
             Engine.EnableRaisingEvents = true;
             Engine.Exited += new EventHandler(Engine_Exited);
 
+        }
+
+        //返回進程是否已退出
+        public bool HasExited()
+        {            
+            return Engine.HasExited;
+        }
+
+        //返回進程的輸入端
+        public StreamWriter Input{
+            get {
+                return Engine.StandardInput;
+            }
         }
 
         //啟動進程

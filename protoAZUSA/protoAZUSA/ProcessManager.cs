@@ -84,7 +84,7 @@ namespace AZUSA
         {
             foreach (IOPortedPrc prc in CurrentProcesses)
             {
-                if (prc.Engine.HasExited)
+                if (prc.HasExited())
                 {
                     CurrentProcesses.Remove(prc);
                 }

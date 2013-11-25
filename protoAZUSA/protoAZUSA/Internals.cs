@@ -16,11 +16,9 @@ namespace AZUSA
         static public void INIT()
         {
             //從 DATA 載入所有已儲存的變量
-            //Load all the variables
-            if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA"))
-            {
-                Variables.Load(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA");
-            }
+            //Load all the variables            
+            Variables.Load(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\DATA");
+
 
             //創建提示圖標
             //Set up notify icon
@@ -29,10 +27,10 @@ namespace AZUSA
 
             //創建圖標右擊菜單的項目
             MenuItem itmRELD = new MenuItem("Reload"); //重新載入
-            itmRELD.Click += new EventHandler(itmRELD_Click); 
+            itmRELD.Click += new EventHandler(itmRELD_Click);
             MenuItem itmEXIT = new MenuItem("Exit"); //退出
             itmEXIT.Click += new EventHandler(itmEXIT_Click);
-            ContextMenu menu = new ContextMenu(new MenuItem[]{itmEXIT,itmRELD});
+            ContextMenu menu = new ContextMenu(new MenuItem[] { itmEXIT, itmRELD });
 
             //把圖標右擊菜單設成上面創建的菜單
             notifyIcon.ContextMenu = menu;
@@ -40,7 +38,7 @@ namespace AZUSA
             //搜索 Engines\ 底下的所有執行檔, SearchOption.AllDirectories 表示子目錄也在搜索範圍內
             //Start the engines
             string EngPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\Engines";
-            string[] EngList = System.IO.Directory.GetFiles(EngPath, "*.exe",SearchOption.AllDirectories);
+            string[] EngList = System.IO.Directory.GetFiles(EngPath, "*.exe", SearchOption.AllDirectories);
 
             //每一個執行檔都添加為引擎
             foreach (string exePath in EngList)
@@ -56,7 +54,7 @@ namespace AZUSA
             //NYAN 指令組的具體內容請看 IOPortedPrc
             if (!ProcessManager.CheckCompleteness())
             {
-                notifyIcon.ShowBalloonTip(1000, "AZUSA", "Some engines are missing. AZUSA will not function unless AI and I/O are all registered.", ToolTipIcon.Error);                
+                notifyIcon.ShowBalloonTip(1000, "AZUSA", "Some engines are missing. AZUSA will not function unless AI and I/O are all registered.", ToolTipIcon.Error);
             }
 
             //初始化到此結束, 然後就是各 IOPortedPrc 聽取和執行引擎的指令了
@@ -137,7 +135,7 @@ namespace AZUSA
 
             //Internal commands
             switch (cmd)
-            {   
+            {
                 // VAR({id}={expr}) 對變數進行寫入
                 case "VAR":
                     string ID = arg.Split('=')[0];
@@ -157,7 +155,7 @@ namespace AZUSA
                 case "SCRIPT":
                     //創建執行物件
                     MUTAN.IRunnable obj;
-                    
+
                     //分割參數, 以便取得部分名, 例如 TEST.part1
                     string[] scr = arg.Split('.');
 
@@ -178,7 +176,7 @@ namespace AZUSA
                     //然後如果 scr 有兩個元素的話, 表示帶有部分名, 只需解析要求的部分
                     if (scr.Length == 2)
                     {
-                        MUTAN.Parser.TryParse(program, out obj, scr[1].Trim());                        
+                        MUTAN.Parser.TryParse(program, out obj, scr[1].Trim());
                     }
                     //否則就整個解析
                     else
@@ -197,7 +195,7 @@ namespace AZUSA
                     }
                     else
                     {
-                        ERROR("An error occured while running script named " + scr[0]+". Please make sure there is no syntax error.");
+                        ERROR("An error occured while running script named " + scr[0] + ". Please make sure there is no syntax error.");
                     }
                     break;
                 // WAIT({int}) 暫停線程
@@ -238,11 +236,11 @@ namespace AZUSA
                             //RIDs 的值如果是 true 的話就表示只傳參數
                             if (prc.RIDs[cmd])
                             {
-                                prc.Engine.StandardInput.WriteLine(arg);
+                                prc.Input.WriteLine(arg);
                             }
                             else
                             {
-                                prc.Engine.StandardInput.WriteLine(cmd + "(" + arg + ")");
+                                prc.Input.WriteLine(cmd + "(" + arg + ")");
                             }
                         }
                     }
