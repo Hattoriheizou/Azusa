@@ -143,7 +143,7 @@ namespace AZUSA
             {
                 Engine.CloseMainWindow();
             }
-            while (!Engine.HasExited)
+            if (!Engine.HasExited)
             {
                 Engine.Kill();
             }

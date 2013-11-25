@@ -97,6 +97,10 @@ namespace AZUSA
             //中止一切線程
             ThreadManager.BreakAll();
 
+            while (ThreadManager.GetCurrentLoops().Count != 0)
+            {
+            }
+
             //結束一切進程
             ProcessManager.KillAll();
 

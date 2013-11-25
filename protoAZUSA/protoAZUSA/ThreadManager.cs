@@ -33,7 +33,7 @@ namespace AZUSA
 
             foreach (LoopThread loop in ListCopy)
             {
-                loop.Break();
+                loop.Break();                
             }
 
             Refresh();
@@ -50,7 +50,9 @@ namespace AZUSA
         //刷新登錄, 清除掉已退出的線程
         static public void Refresh()
         {
-            foreach (LoopThread loop in CurrentLoops)
+            List<LoopThread> ListCopy = new List<LoopThread>(CurrentLoops);
+
+            foreach (LoopThread loop in ListCopy)
             {
                 if (!loop.IsAlive())
                 {
