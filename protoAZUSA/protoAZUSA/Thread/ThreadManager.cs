@@ -36,6 +36,9 @@ namespace AZUSA
                 loop.Break();                
             }
 
+            //扔掉 ListCopy
+            ListCopy = null;
+
             Refresh();
             
         }
@@ -67,6 +70,9 @@ namespace AZUSA
                     CurrentLoops.Remove(loop);
                 }
             }
+
+            //扔掉 ListCopy
+            ListCopy = null;
         }
 
     }

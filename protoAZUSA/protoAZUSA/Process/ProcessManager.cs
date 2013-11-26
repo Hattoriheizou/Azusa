@@ -72,6 +72,9 @@ namespace AZUSA
                 prc.End();
             }
 
+            //扔掉 ListCopy
+            ListCopy = null;
+
             Refresh();
         }
 
@@ -94,6 +97,9 @@ namespace AZUSA
                     CurrentProcesses.Remove(prc);
                 }
             }
+
+            //扔掉 ListCopy
+            ListCopy = null;
         }
 
 

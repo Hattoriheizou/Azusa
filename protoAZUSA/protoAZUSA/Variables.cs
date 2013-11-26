@@ -14,6 +14,9 @@ namespace AZUSA
 
         //系統內建提供了一組日期時間的動態變量
         static string[] DateTimeVars = new string[] { "Y", "M", "D", "h", "m", "s", "d" };
+
+        //線程鎖, 在多線程環境下保護好變量
+        static private object MUTEX= new object();
         
         //從檔案讀取變量
         static public void Load(string filePath)
@@ -134,20 +137,25 @@ namespace AZUSA
         //寫入變量
         static public void Write(string name, string val)
         {
-            //不能寫入內建的日期時間變量
-            //cannot write to date time variables
-            if(DateTimeVars.Contains(name)){
-                return;
-            }
+            //先鎖好環境
+            lock (MUTEX)
+            {
+                //不能寫入內建的日期時間變量
+                //cannot write to date time variables
+                if (DateTimeVars.Contains(name))
+                {
+                    return;
+                }
 
-            //如果已經有這變量, 就更新值, 否則就添加
-            if (storage.ContainsKey(name))
-            {
-                storage[name] = val;
-            }
-            else
-            {
-                storage.Add(name, val);
+                //如果已經有這變量, 就更新值, 否則就添加
+                if (storage.ContainsKey(name))
+                {
+                    storage[name] = val;
+                }
+                else
+                {
+                    storage.Add(name, val);
+                }
             }
         }
 

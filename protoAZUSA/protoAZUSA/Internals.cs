@@ -189,6 +189,10 @@ namespace AZUSA
                         MUTAN.Parser.TryParse(program, out obj);
                     }
 
+                    //清理暫存
+                    program = null;
+                    scr = null;
+
                     //解析結果不為空的話就執行
                     //否則就報錯
                     if (obj != null)
@@ -197,6 +201,9 @@ namespace AZUSA
                         {
                             Execute(code.Command, code.Argument);
                         }
+
+                        //扔掉物件
+                        obj = null;
                     }
                     else
                     {
@@ -257,6 +264,10 @@ namespace AZUSA
                         }
                         catch { }
                     }
+
+                    //扔掉 ListCopy
+                    ListCopy = null;
+
                     //所有進程都檢查完畢
                     //如果 routed 為 true, 那麼已經有進程接管了, AZUSA 就可以不用繼續執行
                     //No need to continue executing the command because it has been routed already
